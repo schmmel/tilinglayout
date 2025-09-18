@@ -1,22 +1,50 @@
 let layoutConfig = {
     layoutContainer: {
         type: 'container',
+        id: '0',
         content: [
             {
                 type: 'window',
+                id: '00',
                 content: 'this is a window',
             },
             {
                 type: 'container',
+                id: '01',
                 content: [
                     {
-                        type: 'window',
-                        content: 'this is also a window but smaller',
+                        type: 'container',
+                        id: '010',
+                        content: [
+                            {
+                                type: 'window',
+                                id: '0100',                                
+                                content: 'this is also a window but smaller',
+                            },
+                            {
+                                type: 'window',
+                                id: '0101',                                
+                                content: 'this is also a window but smaller 2',
+                            }
+                        ]
                     },
                     {
-                        type: 'window',
-                        content: 'this is also a window but smaller 2',
-                    }
+                        type: 'container',
+                        id: '011',
+                        content: [
+                            {
+                                type: 'window',
+                                id: '0110',
+                                content: 'this is also a window but smaller 3',
+                            },
+                            {
+                                type: 'window',
+                                id: '0111',
+                                content: 'this is also a window but smaller 4',
+                            }
+                        ]
+                    },
+
                 ]
             }
         ]
