@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <style>
     body {
         margin: 0;
@@ -9,8 +9,29 @@
         height: 100vh;
         width: 100vw;
     }
+
+    .container {
+        display: flex;
+        height: 100%;
+        width: 100%;
+    }
+
+    .container.vertical {
+        flex-direction: column;
+    }
+
+    .container.horizontal {
+        flex-direction: row;
+    }
+
+    .window {
+        height: 100%;
+        width: 100%;
+        border: black 2px solid;
+    }
 </style>
 
 <div id="layoutContainer"></div>
 
+<script src="config.js"></script>
 <script src="script.js"></script>
