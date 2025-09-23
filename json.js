@@ -38,3 +38,24 @@ let layoutConfig = {
         ]
     }
 }
+
+function readJSON() {
+    let components = [];
+
+    const stack = [layoutConfig];
+    while (stack.length > 0) {
+        const currentObject = stack.pop();
+        Object.keys(currentObject).forEach(key => {
+            if (typeof currentObject[key] === 'object') {
+                if (Object.prototype.toString.apply(currentObject[key]) === '[object Object]') {
+                    components.push(currentObject[key]);
+                }
+                stack.push(currentObject[key]);
+            }
+        });
+    }
+
+    return components;
+}
+
+// kinda unneccesary if i turn it into an array and also an array is easier to work with
