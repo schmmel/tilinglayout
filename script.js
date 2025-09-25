@@ -21,13 +21,17 @@ window.addEventListener('resize', () => {
 });
 
 layout.container.addEventListener('mousedown', (e) => {
-    killComponent(e.target)
+    createNewWindow(e.target)
 })
 
 function clientParameters() {
     layout.width = layout.container.clientWidth;
     layout.height = layout.container.clientHeight;
 
+    containerFlexDirection();
+}
+
+function containerFlexDirection() {
     const primary = document.getElementsByClassName("primaryOrientation");
     const secondary = document.getElementsByClassName("secondaryOrientation");
     if (layout.width >= layout.height) {
@@ -53,7 +57,7 @@ function createContainers(containers) {
         element.id = container;
         element.className = "container";
 
-        if (container.length % 2) {
+        if (element.id.length % 2) {
             element.className += " primaryOrientation";
         } else {
             element.className += " secondaryOrientation";
@@ -80,20 +84,36 @@ function createWindows(windows) {
     })
 }
 
-function killComponent(component) {
-    console.log(component.id)
+function createNewWindow(target) {
+    console.log(target);
 
-    // if (component.id % 2) {
-    //     components[component.id.slice(0, -1)] = components[component.id.slice(0, -1) + "0"];
-    //     delete components[component.id.slice(0, -1) + "0"];
-    // } else {
-    //     components[component.id.slice(0, -1)] = components[component.id.slice(0, -1) + "1"];
-    //     delete components[component.id.slice(0, -1) + "1"];
-    // }
+    // create 2 new containers
+    for (let i = 0; i < 2; i++) {
+        const element = document.createElement("div");
+        element.id = target.id.slice(0, -1) + i.toString();
+        element.className = "container";
 
-    // console.log(components)
+        if (element.id.length % 2) {
+            element.className += " primaryOrientation";
+        } else {
+            element.className += " secondaryOrientation";
+        }
 
-    // delete components[component.id];
+        document.getElementById(target.id.slice(0, -1)).appendChild(element);
+    }
 
-    // createComponents(components);
+    // append original window to child container
+    document.getElementById(target.id.slice(0, -1) + "0").appendChild(document.getElementById(target.id));
+    document.getElementById(target.id).id = target.id.slice(0, -1) + "0w";
+
+    // create new window
+    const element = document.createElement("div");
+    element.id = target.id.slice(0, -2) + "1w"
+    element.className = "window";
+
+    element.innerHTML = "new window";
+
+    document.getElementById(element.id.slice(0, -1)).appendChild(element);
+    
+    containerFlexDirection();
 }
