@@ -2,80 +2,22 @@ let layout = {
     container: document.getElementById('layoutContainer'),
     width: 0,
     height: 0,
-    primaryOrientation: '',
-    secondaryOrientation: '',
 }
 
-let componentsa = [
-    {
-        type: "container",
-        id: "0"
-    },
-    {
-        type: "window",
-        id: "00",
-        content: "this is a window"
-    },
-    {
-        type: "container",
-        id: "01"
-    },
-    {
-        type: "window",
-        id: "010",
-        content: "this is also a window but smaller"
-    },
-    {
-        type: "container",
-        id: "011"
-    },
-    {
-        type: "window",
-        id: "0110",
-        content: "this is also a window but even smaller"
-    },
-    {
-        type: "window",
-        id: "0111",
-        content: "this is also a window but even smaller 2"
-    }
-]
+let containers = ["0", "00", "01", "010", "011", "0110", "0111"];
+let windows = {
+    "00": "this is a window",
+    "010": "this is also a winodw but smaller",
+    "0110": "this is also a window but even smaller",
+    "0111": "this is also a window but even smaller 2",
+};
 
-let components = {
-    "0": {
-        type: "container",
-    },
-    "00": {
-        type: "window",
-        content: "this is a window"
-    },
-    "01": {
-        type: "container"
-    },
-    "010": {
-        type: "window",
-        content: "this is also a window but smaller"
-    },
-    "011": {
-        type: "container"
-    },
-    "0110": {
-        type: "window",
-        content: "this is also a window but even smaller"
-    },
-    "0111": {
-        type: "window",
-        content: "this is also a window but even smaller 2"
-    }
-}
-
+createContainers(containers);
+createWindows(windows);
 clientParameters();
-
-createComponents(components);
 
 window.addEventListener('resize', () => {
     clientParameters();
-    createComponents(components);
 });
 
 layout.container.addEventListener('mousedown', (e) => {
@@ -86,35 +28,56 @@ function clientParameters() {
     layout.width = layout.container.clientWidth;
     layout.height = layout.container.clientHeight;
 
-    layout.primaryOrientation = layout.width >= layout.height ? 'horizontal' : 'vertical';
-    layout.secondaryOrientation = layout.width >= layout.height ? 'vertical' : 'horizontal';
+    const primary = document.getElementsByClassName("primaryOrientation");
+    const secondary = document.getElementsByClassName("secondaryOrientation");
+    if (layout.width >= layout.height) {
+        for (let element of primary) {
+            element.style.flexDirection = "row";
+        }
+        for (let element of secondary) {
+            element.style.flexDirection = "column";
+        }
+    } else {
+        for (let element of primary) {
+            element.style.flexDirection = "column";
+        }
+        for (let element of secondary) {
+            element.style.flexDirection = "row";
+        }
+    }
 }
 
-function createComponents(components) {
-    layout.container.innerHTML = "";
+function createContainers(containers) {
+    containers.forEach(container => {
+        const element = document.createElement("div");
+        element.id = container;
+        element.className = "container";
 
-    Object.keys(components).forEach(key => {
-        const component = document.createElement("div");
-        component.id = key;
-        component.className = components[key].type;
-
-        if (key.length % 2) {
-            component.className += " " + layout.primaryOrientation;
+        if (container.length % 2) {
+            element.className += " primaryOrientation";
         } else {
-            component.className += " " + layout.secondaryOrientation;
+            element.className += " secondaryOrientation";
         }
 
-        if (components[key].type == "window") {
-            component.innerHTML = components[key].content;
-        }
-
-        if (key == "0") {
-            layout.container.appendChild(component);
+        if (container == "0") {
+            layout.container.appendChild(element);
             return;
         }
 
-        document.getElementById(key.slice(0, -1)).appendChild(component);
-    });
+        document.getElementById(container.slice(0, -1)).appendChild(element);
+    })
+}
+
+function createWindows(windows) {
+    Object.keys(windows).forEach(key => {
+        const element = document.createElement("div");
+        element.id = key + "w";
+        element.className = "window";
+
+        element.innerHTML = windows[key];
+
+        document.getElementById(key).appendChild(element);
+    })
 }
 
 function killComponent(component) {
@@ -132,5 +95,5 @@ function killComponent(component) {
 
     // delete components[component.id];
 
-    createComponents(components);
+    // createComponents(components);
 }

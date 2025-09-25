@@ -58,4 +58,4 @@ function readJSON() {
     return components;
 }
 
-// kinda unneccesary if i turn it into an array and also an array is easier to work with
+// kinda unneccesary if i turn it into an array anyway and also an array is easier to work with
