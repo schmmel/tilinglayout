@@ -21,7 +21,7 @@ window.addEventListener('resize', () => {
 });
 
 layout.container.addEventListener('mousedown', (e) => {
-    createNewWindow(e.target)
+    createNewWindow(e.target, "new window");
 })
 
 function clientParameters() {
@@ -33,7 +33,8 @@ function clientParameters() {
 
 function containerFlexDirection() {
     const primary = document.getElementsByClassName("primaryOrientation");
-    const secondary = document.getElementsByClassName("secondaryOrientation");
+    const secondary = document.getElementsByClassName("secondaryOrientation");  
+
     if (layout.width >= layout.height) {
         for (let element of primary) {
             element.style.flexDirection = "row";
@@ -84,13 +85,13 @@ function createWindows(windows) {
     })
 }
 
-function createNewWindow(target) {
-    console.log(target);
+function createNewWindow(target, content) {
+    const parentContainer = target.id.slice(0, -1);
 
     // create 2 new containers
     for (let i = 0; i < 2; i++) {
         const element = document.createElement("div");
-        element.id = target.id.slice(0, -1) + i.toString();
+        element.id = parentContainer + i.toString();
         element.className = "container";
 
         if (element.id.length % 2) {
@@ -99,19 +100,19 @@ function createNewWindow(target) {
             element.className += " secondaryOrientation";
         }
 
-        document.getElementById(target.id.slice(0, -1)).appendChild(element);
+        document.getElementById(parentContainer).appendChild(element);
     }
 
-    // append original window to child container
-    document.getElementById(target.id.slice(0, -1) + "0").appendChild(document.getElementById(target.id));
-    document.getElementById(target.id).id = target.id.slice(0, -1) + "0w";
+    // append original window to child container 0
+    document.getElementById(parentContainer + "0").appendChild(document.getElementById(target.id));
+    document.getElementById(target.id).id = parentContainer + "0w";
 
-    // create new window
+    // create new window and append to child container 1
     const element = document.createElement("div");
-    element.id = target.id.slice(0, -2) + "1w"
+    element.id = parentContainer + "1w"
     element.className = "window";
 
-    element.innerHTML = "new window";
+    element.innerHTML = content;
 
     document.getElementById(element.id.slice(0, -1)).appendChild(element);
     
