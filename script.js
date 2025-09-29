@@ -21,7 +21,8 @@ window.addEventListener('resize', () => {
 });
 
 layout.container.addEventListener('mousedown', (e) => {
-    createNewWindow(e.target, "new window");
+    // createWindow(e.target, "new window");
+    destroyWindow(e.target);
 })
 
 function clientParameters() {
@@ -85,7 +86,7 @@ function createWindows(windows) {
     })
 }
 
-function createNewWindow(target, content) {
+function createWindow(target, content) {
     const parentContainer = target.id.slice(0, -1);
 
     // create 2 new containers
@@ -103,11 +104,11 @@ function createNewWindow(target, content) {
         document.getElementById(parentContainer).appendChild(element);
     }
 
-    // append original window to child container 0
+    // append original window to new container 0
     document.getElementById(parentContainer + "0").appendChild(document.getElementById(target.id));
     document.getElementById(target.id).id = parentContainer + "0w";
 
-    // create new window and append to child container 1
+    // create new window and append to new container 1
     const element = document.createElement("div");
     element.id = parentContainer + "1w"
     element.className = "window";
@@ -117,4 +118,17 @@ function createNewWindow(target, content) {
     document.getElementById(element.id.slice(0, -1)).appendChild(element);
     
     containerFlexDirection();
+}
+
+function destroyWindow(target) {
+    console.log(target.id);
+
+    // remove target window
+    target.remove();
+    // or
+    target.parentElement.remove();
+
+    // append sibling window to parent container
+
+    // remove sibling containers
 }
