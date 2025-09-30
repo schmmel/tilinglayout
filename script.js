@@ -21,9 +21,16 @@ window.addEventListener('resize', () => {
 });
 
 layout.container.addEventListener('mousedown', (e) => {
-    // createWindow(e.target, "new window");
-    destroyWindow(e.target);
-})
+    if (e.button == 0) {
+        createWindow(e.target, "new window");
+    } else if (e.button == 2) {
+        destroyWindow(e.target);
+    }
+});
+
+window.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
 
 function clientParameters() {
     layout.width = layout.container.clientWidth;
@@ -33,24 +40,16 @@ function clientParameters() {
 }
 
 function containerFlexDirection() {
-    const primary = document.getElementsByClassName("primaryOrientation");
-    const secondary = document.getElementsByClassName("secondaryOrientation");  
+    const primary = [...document.getElementsByClassName("primaryOrientation")];
+    const secondary = [...document.getElementsByClassName("secondaryOrientation")];
 
-    if (layout.width >= layout.height) {
-        for (let element of primary) {
-            element.style.flexDirection = "row";
-        }
-        for (let element of secondary) {
-            element.style.flexDirection = "column";
-        }
-    } else {
-        for (let element of primary) {
-            element.style.flexDirection = "column";
-        }
-        for (let element of secondary) {
-            element.style.flexDirection = "row";
-        }
-    }
+    primary.forEach(element => {
+        element.style.flexDirection = layout.width >= layout.height ? "row" : "column";
+    });
+
+    secondary.forEach(element => {
+        element.style.flexDirection = layout.width >= layout.height ? "column" : "row";
+    });
 }
 
 function createContainers(containers) {
@@ -59,11 +58,7 @@ function createContainers(containers) {
         element.id = container;
         element.className = "container";
 
-        if (element.id.length % 2) {
-            element.className += " primaryOrientation";
-        } else {
-            element.className += " secondaryOrientation";
-        }
+        containerClass(element);
 
         if (container == "0") {
             layout.container.appendChild(element);
@@ -93,13 +88,8 @@ function createWindow(target, content) {
     for (let i = 0; i < 2; i++) {
         const element = document.createElement("div");
         element.id = parentContainer + i.toString();
-        element.className = "container";
 
-        if (element.id.length % 2) {
-            element.className += " primaryOrientation";
-        } else {
-            element.className += " secondaryOrientation";
-        }
+        containerClass(element);
 
         document.getElementById(parentContainer).appendChild(element);
     }
@@ -116,19 +106,46 @@ function createWindow(target, content) {
     element.innerHTML = content;
 
     document.getElementById(element.id.slice(0, -1)).appendChild(element);
-    
+
     containerFlexDirection();
 }
 
 function destroyWindow(target) {
-    console.log(target.id);
+    const affectedContainer = target.parentElement.parentElement;
 
-    // remove target window
-    target.remove();
-    // or
     target.parentElement.remove();
 
-    // append sibling window to parent container
+    reformatWindows(affectedContainer);
+}
 
-    // remove sibling containers
+function reformatWindows(target) {
+    let elements = [...target.getElementsByTagName("*")];
+
+    for (let i = 0; i < elements.length; i++) {
+        let element = elements[i]
+
+        if (i == 0) {
+            if (element.id.length <= 2) {
+                document.getElementById(layout.container.id).appendChild(element);
+            } else {
+                document.getElementById(element.id.slice(0, -2)).appendChild(element);
+            }
+
+            target.remove();
+        };
+
+        if (element.className == "window") {
+            element.id = element.id.slice(0, -2) + "w";
+        } else {
+            element.id = element.id.slice(0, -1);
+            containerClass(element)
+        }
+    }
+
+    containerFlexDirection();
+}
+
+function containerClass(element) {
+    element.className = element.id.length % 2 ? "container primaryOrientation" : "container secondaryOrientation";
+
 }
