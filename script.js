@@ -111,6 +111,11 @@ function createWindow(target, content) {
 }
 
 function destroyWindow(target) {
+    // dont destroy window if its the only window
+    if (target.id == "0w") {
+        return;
+    }
+
     const affectedContainer = target.parentElement.parentElement;
 
     target.parentElement.remove();
