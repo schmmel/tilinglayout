@@ -12,14 +12,19 @@ let windows = {
     "0111": "this is also a window but even smaller 2",
 };
 
+let containerSizes = {
+    "00": "34",
+    "01": "66",
+}
+
 createContainers(containers);
 createWindows(windows);
 clientParameters();
+setContainerSize();
 
 window.addEventListener('resize', () => {
     clientParameters();
 });
-
 layout.container.addEventListener('mousedown', (e) => {
     if (e.button == 0) {
         createWindow(e.target, "new window");
@@ -152,5 +157,14 @@ function reformatWindows(target) {
 
 function containerClass(element) {
     element.className = element.id.length % 2 ? "container primaryOrientation" : "container secondaryOrientation";
+}
 
+function setContainerSize() {
+    Object.keys(containerSizes).forEach(key => {
+        if (document.getElementById(key).classList.contains("primaryOrientation")) {
+            document.getElementById(key).style.height = containerSizes[key] + "%";
+        } else {
+            document.getElementById(key).style.width = containerSizes[key] + "%";
+        }
+    })
 }
