@@ -1,6 +1,6 @@
 let layout = {
     root: document.getElementById('layoutContainer'),
-    defaultSize: 10,
+    defaultContainerSize: 10,
     width: 0,
     height: 0,
 }
@@ -14,7 +14,7 @@ let windows = {
 };
 
 let containerSizes = {
-    "0": layout.defaultSize,
+    "0": layout.defaultContainerSize,
     "00": 5,
     "0111": 2,
 }
@@ -27,9 +27,10 @@ window.addEventListener('resize', () => {
     clientParameters();
 });
 
+// for testing only
 layout.root.addEventListener('mousedown', (e) => {
     if (e.button == 0) {
-        createWindow(e.target, "new window");
+        createWindow(e.target, 0, "new window");
     } else if (e.button == 2) {
         destroyWindow(e.target);
     }
@@ -71,7 +72,7 @@ function loadContainerConfig(containers) {
 
         if (containerSizes[container] == undefined) {
             // containerSizes[container] = containerSizes[container.slice(0, -1)];
-            containerSizes[container] = layout.defaultSize
+            containerSizes[container] = layout.defaultContainerSize
         }
 
         if (container == "0") {
@@ -95,7 +96,7 @@ function loadWindowConfig(windows) {
     })
 }
 
-function createWindow(target, content) {
+function createWindow(target, newWindowLocation, content) {
     const parentContainer = target.id.slice(0, -1);
 
     // create 2 new containers
@@ -113,18 +114,20 @@ function createWindow(target, content) {
         document.getElementById(parentContainer).appendChild(element);
     }
 
-    // append original window to new container 0
-    document.getElementById(parentContainer + "0").appendChild(document.getElementById(target.id));
-    document.getElementById(target.id).id = parentContainer + "0w";
-
-    // create new window and append to new container 1
+    // create new window and append to specified container
     const element = document.createElement("div");
-    element.id = parentContainer + "1w"
+    element.id = parentContainer + newWindowLocation.toString() + "w"
     element.className = "window";
 
     element.innerHTML = content;
 
     document.getElementById(element.id.slice(0, -1)).appendChild(element);
+
+    // append original window to opposite container
+    const oldWindowLocation = newWindowLocation ? 0 : 1;
+
+    document.getElementById(parentContainer + oldWindowLocation.toString()).appendChild(document.getElementById(target.id));
+    document.getElementById(target.id).id = parentContainer + oldWindowLocation.toString() + "w";
 
     setContainerFlexDirection();
     setContainerSize();
@@ -193,9 +196,6 @@ function setContainerClass(element) {
         element.classList.remove("primaryOrientation");
         element.classList.add("secondaryOrientation");
     }
-    // FIX
-    // https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
-    // element.className = element.id.length % 2 ? "container primaryOrientation" : "container secondaryOrientation";
 }
 
 function setContainerSize() {
