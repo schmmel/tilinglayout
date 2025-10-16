@@ -228,8 +228,8 @@ function setContainerSize() {
             targetContainer.style.height = ((containerSize / totalSize) * 100) + "%";
             targetContainer.style.width = "100%";
         } else if (targetContainer.style.flexDirection == "column") {
-            targetContainer.style.width = ((containerSize / totalSize) * 100) + "%";
             targetContainer.style.height = "100%";
+            targetContainer.style.width = ((containerSize / totalSize) * 100) + "%";
         }
     })
 }
