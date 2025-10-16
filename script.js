@@ -1,5 +1,6 @@
 let layout = {
     root: document.getElementById('layoutContainer'),
+    defaultSize: 10,
     width: 0,
     height: 0,
 }
@@ -13,6 +14,7 @@ let windows = {
 };
 
 let containerSizes = {
+    "0": layout.defaultSize,
     "00": 5,
     "0111": 2,
 }
@@ -67,10 +69,9 @@ function loadContainerConfig(containers) {
 
         setContainerClass(element);
 
-        // FIX
-        // container size should be same as parent
         if (containerSizes[container] == undefined) {
-            containerSizes[container] = 10;
+            // containerSizes[container] = containerSizes[container.slice(0, -1)];
+            containerSizes[container] = layout.defaultSize
         }
 
         if (container == "0") {
@@ -101,11 +102,10 @@ function createWindow(target, content) {
     for (let i = 0; i < 2; i++) {
         const element = document.createElement("div");
         element.id = parentContainer + i.toString();
+        element.className = "container";
 
-        // FIX
-        // container size should be same as parent
         if (containerSizes[element.id] == undefined) {
-            containerSizes[element.id] = 10;
+            containerSizes[element.id] = containerSizes[parentContainer];
         }
 
         setContainerClass(element);
@@ -150,9 +150,7 @@ function destroyWindow(target) {
 
 function reformatWindows(target) {
     const elements = [...target.getElementsByTagName("*")];
-    console.log(target.id)
     const nthDigitToRemove = target.id.length;
-    console.log(nthDigitToRemove)
 
     for (let i = 0; i < elements.length; i++) {
         let element = elements[i]
@@ -190,16 +188,21 @@ function reformatWindows(target) {
 }
 
 function setContainerClass(element) {
+    if (element.id.length % 2) {
+        element.classList.remove("secondaryOrientation");
+        element.classList.add("primaryOrientation");
+    } else {
+        element.classList.remove("primaryOrientation");
+        element.classList.add("secondaryOrientation");
+    }
     // FIX
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
-    element.className = element.id.length % 2 ? "container primaryOrientation" : "container secondaryOrientation";
+    // element.className = element.id.length % 2 ? "container primaryOrientation" : "container secondaryOrientation";
 }
 
 function setContainerSize() {
     Object.keys(containerSizes).forEach(key => {
         const targetContainer = document.getElementById(key);
-        console.log(key);
-        console.log(targetContainer);
 
         if (key == "0") {
             targetContainer.style.height = "100%";
@@ -221,10 +224,10 @@ function setContainerSize() {
 
         const totalSize = containerSizes[parentContainer + "0"] + containerSizes[parentContainer + "1"];
 
-        if (targetContainer.classList.contains("primaryOrientation")) {
+        if (targetContainer.style.flexDirection == "row") {
             targetContainer.style.height = ((containerSize / totalSize) * 100) + "%";
             targetContainer.style.width = "100%";
-        } else if (targetContainer.classList.contains("secondaryOrientation")) {
+        } else if (targetContainer.style.flexDirection == "column") {
             targetContainer.style.width = ((containerSize / totalSize) * 100) + "%";
             targetContainer.style.height = "100%";
         }
