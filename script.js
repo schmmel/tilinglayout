@@ -145,9 +145,6 @@ function destroyWindow(target) {
     reformatWindows(affectedContainer);
 }
 
-// FIX
-// why do containers swap around sometimes
-
 function reformatWindows(target) {
     const elements = [...target.getElementsByTagName("*")];
     const nthDigitToRemove = target.id.length;
@@ -160,6 +157,7 @@ function reformatWindows(target) {
                 document.getElementById(layout.root.id).appendChild(element);
             } else {
                 document.getElementById(element.id.slice(0, -2)).appendChild(element);
+                document.getElementById(element.id.slice(0, -2)).appendChild(document.getElementById(element.id.slice(0, -2) + "1"));
             }
 
             target.remove();
