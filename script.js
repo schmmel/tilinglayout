@@ -126,8 +126,8 @@ function createWindow(target, newWindowLocation, content) {
     // append original window to opposite container
     const oldWindowLocation = newWindowLocation ? 0 : 1;
 
-    document.getElementById(parentContainer + oldWindowLocation.toString()).appendChild(document.getElementById(target.id));
-    document.getElementById(target.id).id = parentContainer + oldWindowLocation.toString() + "w";
+    document.getElementById(parentContainer + oldWindowLocation.toString()).appendChild(target);
+    target.id = parentContainer + oldWindowLocation.toString() + "w";
 
     setContainerFlexDirection();
     setContainerSize();
