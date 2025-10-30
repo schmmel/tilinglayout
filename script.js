@@ -5,18 +5,16 @@ let layout = {
     height: 0,
 }
 
-let containers = ["0", "00", "01", "010", "011", "0110", "0111"];
+let containers = ["0", "00", "01"];
 let windows = {
-    "00": "this is a window",
-    "010": "this is also a winodw but wider",
-    "0110": "this is also a window",
-    "0111": "this window is very tiny",
+    "00": "<h2>testing container</h2>\n<a href=\"#\" onclick=\"\">create window</a>",
+    "01": "window",
 };
 
 let containerSizes = {
+    // containers take size from parent unless specified, container 0 must be specified
     "0": layout.defaultContainerSize,
     "00": 5,
-    "0111": 2,
 }
 
 loadContainerConfig(containers);
@@ -28,17 +26,16 @@ window.addEventListener('resize', () => {
 });
 
 // for testing only
-layout.root.addEventListener('mousedown', (e) => {
-    if (e.button == 0) {
-        createWindow(e.target, 0, "new window");
-    } else if (e.button == 2) {
-        destroyWindow(e.target);
-    }
-});
-
-window.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-});
+// layout.root.addEventListener('mousedown', (e) => {
+//     if (e.button == 0) {
+//         createWindow(e.target, 0, "new window");
+//     } else if (e.button == 2) {
+//         destroyWindow(e.target);
+//     }
+// });
+// window.addEventListener("contextmenu", (e) => {
+//     e.preventDefault();
+// });
 
 function clientParameters() {
     layout.width = layout.root.clientWidth;
@@ -156,8 +153,9 @@ function reformatWindows(target) {
         let element = elements[i]
 
         if (i == 0) {
+            // only true if there is only 1 remaining window
             if (element.id.length <= 2) {
-                document.getElementById(layout.root.id).appendChild(element);
+                layout.root.appendChild(element);
             } else {
                 document.getElementById(element.id.slice(0, -2)).appendChild(element);
                 document.getElementById(element.id.slice(0, -2)).appendChild(document.getElementById(element.id.slice(0, -2) + "1"));
@@ -214,10 +212,10 @@ function setContainerSize() {
         // hacky fix for some containers not having corresponding sizes???
         // i dont know why they dont have corresponding sizes but they should
         if (containerSizes[parentContainer + "0"] == undefined) {
-            containerSizes[parentContainer + "0"] = 10;
+            containerSizes[parentContainer + "0"] = layout.defaultContainerSize;
         }
         if (containerSizes[parentContainer + "1"] == undefined) {
-            containerSizes[parentContainer + "1"] = 10;
+            containerSizes[parentContainer + "1"] = layout.defaultContainerSize;
         }
 
         const totalSize = containerSizes[parentContainer + "0"] + containerSizes[parentContainer + "1"];
