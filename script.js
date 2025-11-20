@@ -7,11 +7,13 @@ let layout = {
     tempI: 0,
 }
 
-let containers = ["0", "00", "01"];
-let windows = {
+const containerConfig = ["0", "00", "01"];
+const windowConfig = {
     "00": "<h2>testing window</h2>\n<a href=\"#\" onclick=\"createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)\">create window</a>",
     "01": "window",
 };
+
+let containers = [];
 
 let containerSizes = {
     // containers take size from parent unless specified, so container 0 must be specified
@@ -19,8 +21,8 @@ let containerSizes = {
     "00": 5,
 }
 
-loadContainerConfig(containers);
-loadWindowConfig(windows);
+loadContainerConfig(containerConfig);
+loadWindowConfig(windowConfig);
 clientParameters();
 
 window.addEventListener('resize', () => {
@@ -61,8 +63,9 @@ function setContainerFlexDirection() {
     setContainerSize();
 }
 
-function loadContainerConfig(containers) {
-    containers.forEach(container => {
+function loadContainerConfig(containerConfig) {
+    containerConfig.forEach(container => {
+
         const element = document.createElement("div");
         element.id = container;
         element.className = "container";
@@ -81,17 +84,19 @@ function loadContainerConfig(containers) {
 
         document.getElementById(container.slice(0, -1)).appendChild(element);
     })
+
+    populateContainersArray();
 }
 
-function loadWindowConfig(windows) {
-    Object.keys(windows).forEach(key => {
+function loadWindowConfig(windowConfig) {
+    Object.keys(windowConfig).forEach(window => {
         const element = document.createElement("div");
-        element.id = key + "w";
+        element.id = window + "w";
         element.className = "window";
 
-        element.innerHTML = windows[key];
+        element.innerHTML = windowConfig[window];
 
-        document.getElementById(key).appendChild(element);
+        document.getElementById(window).appendChild(element);
     })
 }
 
@@ -151,10 +156,11 @@ function destroyWindow(targetId) {
     }
 
     const target = document.getElementById(targetId);
+    const targetContainerId = targetId.slice(0, -1);
+
+    delete containerSizes[targetContainerId];
 
     const affectedContainer = target.parentElement.parentElement;
-
-    delete containerSizes[target.id.slice(0, -1)];
 
     target.parentElement.remove();
 
@@ -205,6 +211,7 @@ function reformatWindows(target) {
 
     setContainerFlexDirection();
     setContainerSize();
+    populateContainersArray();
 }
 
 function setContainerClass(element) {
@@ -249,4 +256,14 @@ function setContainerSize() {
             targetContainer.style.width = ((containerSize / totalSize) * 100) + "%";
         }
     })
+}
+
+function populateContainersArray() {
+    containers = [];
+
+    const existingContainers = [...document.getElementsByClassName("container")];
+
+    existingContainers.forEach(container => {
+        containers.push(container.id)
+    });
 }
