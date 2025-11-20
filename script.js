@@ -30,16 +30,16 @@ window.addEventListener('resize', () => {
 });
 
 // for testing only
-layout.root.addEventListener('mousedown', (e) => {
-    if (e.button == 0) {
-        // createWindow(e.target.id, 0, "new window");
-    } else if (e.button == 2) {
-        destroyWindow(e.target.id);
-    }
-});
-window.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-});
+// layout.root.addEventListener('mousedown', (e) => {
+//     if (e.button == 0) {
+//         createWindow(e.target.id, 0, "new window");
+//     } else if (e.button == 2) {
+//         destroyWindow(e.target.id);
+//     }
+// });
+// window.addEventListener("contextmenu", (e) => {
+//     e.preventDefault();
+// });
 
 function clientParameters() {
     layout.width = layout.root.clientWidth;
@@ -89,14 +89,16 @@ function loadContainerConfig(containerConfig) {
 }
 
 function loadWindowConfig(windowConfig) {
-    Object.keys(windowConfig).forEach(window => {
+    Object.keys(windowConfig).forEach(containerId => {
         const element = document.createElement("div");
-        element.id = window + "w";
+        element.id = containerId + "w";
         element.className = "window";
 
-        element.innerHTML = windowConfig[window];
+        createComponent(element, "close-button");
 
-        document.getElementById(window).appendChild(element);
+        element.innerHTML += windowConfig[containerId];
+
+        document.getElementById(containerId).appendChild(element);
     })
 }
 
@@ -130,7 +132,9 @@ function createWindow(targetId, newWindowLocation, content) {
     element.id = parentContainer + newWindowLocation.toString() + "w"
     element.className = "window";
 
-    element.innerHTML = content;
+    createComponent(element, "close-button");
+
+    element.innerHTML += content;
 
     document.getElementById(element.id.slice(0, -1)).appendChild(element);
     layout.latestCreatedWindow = element.id;
@@ -266,4 +270,19 @@ function populateContainersArray() {
     existingContainers.forEach(container => {
         containers.push(container.id)
     });
+}
+
+function createComponent(target, componentType) {
+    let component = null;
+
+    switch (componentType) {
+        case "close-button":
+            component = document.createElement("button");
+            component.type = "button";
+            component.className = "button";
+            component.textContent = "close";
+            component.setAttribute("onclick", "destroyWindow(this.parentElement.id)")
+            break;
+    }
+    target.appendChild(component);
 }
