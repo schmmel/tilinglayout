@@ -3,16 +3,18 @@ let layout = {
     defaultContainerSize: 10,
     width: 0,
     height: 0,
+    latestCreatedWindow: "",
+    tempI: 0,
 }
 
 let containers = ["0", "00", "01"];
 let windows = {
-    "00": "<h2>testing container</h2>\n<a href=\"#\" onclick=\"\">create window</a>",
+    "00": "<h2>testing window</h2>\n<a href=\"#\" onclick=\"createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)\">create window</a>",
     "01": "window",
 };
 
 let containerSizes = {
-    // containers take size from parent unless specified, container 0 must be specified
+    // containers take size from parent unless specified, so container 0 must be specified
     "0": layout.defaultContainerSize,
     "00": 5,
 }
@@ -26,16 +28,16 @@ window.addEventListener('resize', () => {
 });
 
 // for testing only
-// layout.root.addEventListener('mousedown', (e) => {
-//     if (e.button == 0) {
-//         createWindow(e.target, 0, "new window");
-//     } else if (e.button == 2) {
-//         destroyWindow(e.target);
-//     }
-// });
-// window.addEventListener("contextmenu", (e) => {
-//     e.preventDefault();
-// });
+layout.root.addEventListener('mousedown', (e) => {
+    if (e.button == 0) {
+        // createWindow(e.target.id, 0, "new window");
+    } else if (e.button == 2) {
+        destroyWindow(e.target.id);
+    }
+});
+window.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
 
 function clientParameters() {
     layout.width = layout.root.clientWidth;
@@ -93,7 +95,14 @@ function loadWindowConfig(windows) {
     })
 }
 
-function createWindow(target, newWindowLocation, content) {
+function createWindow(targetId, newWindowLocation, content) {
+    layout.tempI++
+
+    if (targetId === "") {
+        targetId = containers[containers.length - 1] + "w";
+    }
+
+    const target = document.getElementById(targetId);
     const parentContainer = target.id.slice(0, -1);
 
     // create 2 new containers
@@ -119,6 +128,7 @@ function createWindow(target, newWindowLocation, content) {
     element.innerHTML = content;
 
     document.getElementById(element.id.slice(0, -1)).appendChild(element);
+    layout.latestCreatedWindow = element.id;
 
     // append original window to opposite container
     const oldWindowLocation = newWindowLocation ? 0 : 1;
@@ -130,11 +140,17 @@ function createWindow(target, newWindowLocation, content) {
     setContainerSize();
 }
 
-function destroyWindow(target) {
+function destroyWindow(targetId) {
     // dont destroy window if its the only window
-    if (target.id == "0w") {
+    if (targetId == "0w") {
         return;
     }
+
+    if (targetId === layout.latestCreatedWindow) {
+        layout.latestCreatedWindow = "";
+    }
+
+    const target = document.getElementById(targetId);
 
     const affectedContainer = target.parentElement.parentElement;
 
@@ -151,6 +167,7 @@ function reformatWindows(target) {
 
     for (let i = 0; i < elements.length; i++) {
         let element = elements[i]
+        const originalId = element.id;
 
         if (i == 0) {
             // only true if there is only 1 remaining window
@@ -170,8 +187,12 @@ function reformatWindows(target) {
 
             element.id = element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1);
 
-            // append "w" denoting window
             element.id += "w";
+
+            if (originalId === layout.latestCreatedWindow) {
+                layout.latestCreatedWindow = element.id;
+            }
+
         } else if (element.classList.contains("container")) {
             containerSizes[element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1)] = containerSizes[element.id];
             delete containerSizes[element.id];
