@@ -9,9 +9,13 @@ let layout = {
 
 const containerConfig = ["0", "00", "01"];
 const windowConfig = {
-    "00": "<h2>testing window</h2>\n<a href=\"#\" onclick=\"createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)\">create window</a>",
-    "01": "window",
+    "00": "\n<a href=\"#\" onclick=\"createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)\">create window</a>",
+    "01": "this is the window content",
 };
+const windowTitles = {
+    "00": "TESTING WINDOW",
+    "01": "BIG WINDOW",
+}
 
 let containers = [];
 
@@ -94,9 +98,8 @@ function loadWindowConfig(windowConfig) {
         element.id = containerId + "w";
         element.className = "window";
 
-        createComponent(element, "close-button");
-
-        element.innerHTML += windowConfig[containerId];
+        createComponent(element, "header", windowTitles[containerId]);
+        createComponent(element, "content", windowConfig[containerId]);
 
         document.getElementById(containerId).appendChild(element);
     })
@@ -132,9 +135,8 @@ function createWindow(targetId, newWindowLocation, content) {
     element.id = parentContainer + newWindowLocation.toString() + "w"
     element.className = "window";
 
-    createComponent(element, "close-button");
-
-    element.innerHTML += content;
+    createComponent(element, "header", content);
+    createComponent(element, "content", content);
 
     document.getElementById(element.id.slice(0, -1)).appendChild(element);
     layout.latestCreatedWindow = element.id;
@@ -272,17 +274,37 @@ function populateContainersArray() {
     });
 }
 
-function createComponent(target, componentType) {
+function createComponent(target, componentType, content) {
     let component = null;
 
     switch (componentType) {
+        case "header":
+            component = document.createElement("div");
+            component.className = "header";
+            target.appendChild(component);
+            createComponent(component, "title", content)
+            createComponent(component, "close-button");
+            break;
+        case "title":
+            component = document.createElement("span");
+            component.className = "title";
+            component.innerText = content.toUpperCase();
+            target.appendChild(component);
+            break;
         case "close-button":
             component = document.createElement("button");
             component.type = "button";
-            component.className = "button";
-            component.textContent = "close";
-            component.setAttribute("onclick", "destroyWindow(this.parentElement.id)")
+            component.className = "close-button";
+            component.textContent = "X";
+            component.setAttribute("onclick", "destroyWindow(this.parentElement.parentElement.id)");
+            target.appendChild(component);
+            break;
+        case "content":
+            component = document.createElement("div");
+            component.className = "content";
+            component.innerHTML = content;
+            target.appendChild(component);
             break;
     }
-    target.appendChild(component);
+
 }

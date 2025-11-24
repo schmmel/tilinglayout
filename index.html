@@ -3,6 +3,8 @@
     body {
         margin: 0;
         padding: 0;
+        font-family: "Arial";
+        font-size: large;
     }
 
     #layoutContainer {
@@ -23,10 +25,32 @@
     }
 
     .window {
-        height: calc(100% - 32px);
-        width: calc(100% - 32px);
+        height: calc(100% - 16px);
+        width: calc(100% - 16px);
         border: blue 8px double;
-        padding: 8px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .title {
+        padding: 0 3px;
+        background-color: blue;
+        color: white;
+    }
+
+    .close-button {
+        padding: 0 3px;
+        background-color: blue;
+        color: white;
+        border: none;
+        margin-left: 8px;
+    }
+
+    .content {
+        padding: 6px;
     }
 </style>
 
