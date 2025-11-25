@@ -3,7 +3,8 @@ let layout = {
     direction: 'horizontal',
     width: 0,
     height: 0,
-    defaultContainerSize: 10,
+    borderSize: 4, // additional to css border
+    defaultContainerSize: 1,
     latestCreatedWindow: "",
     tempI: 0,
 }
@@ -22,9 +23,8 @@ const windowTitles = {
 let containers = [];
 
 let containerSizes = {
-    // containers take size from parent unless specified, so container 0 must be specified
-    "c0": layout.defaultContainerSize,
-    "c00": 5,
+    "c00": (1 / 3) * layout.defaultContainerSize,
+    "c01": (2 / 3) * layout.defaultContainerSize,
 }
 
 loadContainerConfig(containerConfig);
@@ -116,6 +116,8 @@ function loadWindowConfig(windowConfig) {
         createComponent(element, "content", windowConfig[windowId]);
 
         document.getElementById('c' + windowId.slice(1)).appendChild(element);
+
+        element.addEventListener("mousedown", resizeListener);
     })
 }
 
@@ -136,7 +138,7 @@ function createWindow(targetId, newWindowLocation, content) {
         element.className = "container";
 
         if (containerSizes[element.id] == undefined) {
-            containerSizes[element.id] = containerSizes[parentContainer];
+            containerSizes[element.id] = layout.defaultContainerSize;
         }
 
         setContainerClass(element);
@@ -154,6 +156,8 @@ function createWindow(targetId, newWindowLocation, content) {
 
     document.getElementById('c' + element.id.slice(1)).appendChild(element);
     layout.latestCreatedWindow = element.id;
+
+    element.addEventListener("mousedown", resizeListener);
 
     // append original window to opposite container
     const oldWindowLocation = newWindowLocation ? 0 : 1;
@@ -231,10 +235,40 @@ function reformatWindows(target) {
     populateContainersArray();
 }
 
-// https://stackoverflow.com/questions/26233180/resize-a-div-on-border-drag-and-drop-without-adding-extra-markup
-function resizeWindow() {
+function resizeListener(e) {
+    if ( // check whether mousedown is on edge of screen
+        e.clientX < 0 + (layout.borderSize + 8) ||              // left
+        e.clientX > layout.width - (layout.borderSize + 8) ||   // right
+        e.clientY < 0 + (layout.borderSize + 8) ||              // top
+        e.clientY > layout.height - (layout.borderSize + 8)     // bottom
+    ) {
+        return;
+    }
 
+    if ( // check whether mousedown is on window border
+        e.offsetX < layout.borderSize ||                        // left
+        e.offsetX > e.target.clientWidth - layout.borderSize || // right
+        e.offsetY < layout.borderSize ||                        // top
+        e.offsetY > e.target.clientHeight - layout.borderSize   // bottom
+    ) {
+        console.log("border");
+    }
+
+    // if (e.x < layout.borderSize) {
+    //     return;
+    // }
+    console.log(e);
+    // console.log(e.target.clientHeight);
+    // document.addEventListener("mousemove", resizeWindow);
 }
+
+function resizeWindow(e) {
+    // console.log('im being moved and stuff ', e)
+}
+
+document.addEventListener('mouseup', () => {
+    document.removeEventListener("mousemove", resizeWindow);
+});
 
 function setContainerSize() {
     Object.keys(containerSizes).forEach(key => {
