@@ -235,7 +235,14 @@ function reformatWindows(target) {
     populateContainersArray();
 }
 
+let resizeTarget;
+let resizeDirection;
+
 function resizeListener(e) {
+    if (!e.target.classList.contains("window")) {
+        return;
+    }
+
     if ( // check whether mousedown is on edge of screen
         e.clientX < 0 + (layout.borderSize + 8) ||              // left
         e.clientX > layout.width - (layout.borderSize + 8) ||   // right
@@ -245,18 +252,40 @@ function resizeListener(e) {
         return;
     }
 
-    if ( // check whether mousedown is on window border
-        e.offsetX < layout.borderSize ||                        // left
-        e.offsetX > e.target.clientWidth - layout.borderSize || // right
-        e.offsetY < layout.borderSize ||                        // top
-        e.offsetY > e.target.clientHeight - layout.borderSize   // bottom
-    ) {
-        document.addEventListener("mousemove", resizeWindow);
+    if (e.offsetX < layout.borderSize) {
+        resizeDirection = "left";
+    } else if (e.offsetX > e.target.clientWidth - layout.borderSize) {
+        resizeDirection = "right";
+    } else if (e.offsetY < layout.borderSize) {
+        resizeDirection = "top";
+    } else if (e.offsetY > e.target.clientHeight - layout.borderSize) {
+        resizeDirection = "bottom";
+    } else {
+        return;
     }
+
+    resizeTarget = e.target;
+    document.addEventListener("mousemove", resizeWindow);
 }
 
 function resizeWindow(e) {
-    // console.log('im being moved and stuff ', e)
+
+    // detect window on opposite side of border
+    let secondaryTarget;
+    switch (resizeDirection) {
+        case "left":
+            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft - 1, e.y);
+            break;
+        case "right":
+            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft + resizeTarget.offsetWidth + 1, e.y);
+            break;
+        case "top":
+            secondaryTarget = document.elementFromPoint(e.x, resizeTarget.offsetTop - 1);
+            break;
+        case "bottom":
+            secondaryTarget = document.elementFromPoint(e.x, resizeTarget.offsetTop + resizeTarget.offsetHeight + 1);
+            break;
+    }
 }
 
 document.addEventListener('mouseup', () => {
