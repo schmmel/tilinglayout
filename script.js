@@ -1,11 +1,13 @@
 let layout = {
     root: document.getElementById('layoutContainer'),
-    defaultContainerSize: 10,
+    direction: 'horizontal',
     width: 0,
     height: 0,
+    defaultContainerSize: 10,
     latestCreatedWindow: "",
     tempI: 0,
 }
+
 
 const containerConfig = ["0", "00", "01"];
 const windowConfig = {
@@ -29,10 +31,6 @@ loadContainerConfig(containerConfig);
 loadWindowConfig(windowConfig);
 clientParameters();
 
-window.addEventListener('resize', () => {
-    clientParameters();
-});
-
 // for testing only
 // layout.root.addEventListener('mousedown', (e) => {
 //     if (e.button == 0) {
@@ -45,9 +43,14 @@ window.addEventListener('resize', () => {
 //     e.preventDefault();
 // });
 
+window.addEventListener('resize', () => {
+    clientParameters();
+});
+
 function clientParameters() {
     layout.width = layout.root.clientWidth;
     layout.height = layout.root.clientHeight;
+    layout.direction = layout.width >= layout.height ? 'horizontal' : 'vertical';
 
     setContainerFlexDirection();
 }
@@ -57,14 +60,25 @@ function setContainerFlexDirection() {
     const secondary = [...document.getElementsByClassName("secondaryOrientation")];
 
     primary.forEach(element => {
-        element.style.flexDirection = layout.width >= layout.height ? "row" : "column";
+        element.style.flexDirection = layout.direction === 'horizontal' ? 'row' : 'column';
     });
 
     secondary.forEach(element => {
-        element.style.flexDirection = layout.width >= layout.height ? "column" : "row";
+        element.style.flexDirection = layout.direction === 'horizontal' ? 'column' : 'row';
     });
 
     setContainerSize();
+}
+
+// element id is always 1 longer than parent element
+function setContainerClass(element) {
+    if (element.id.length % 2) {
+        element.classList.remove("secondaryOrientation");
+        element.classList.add("primaryOrientation");
+    } else {
+        element.classList.remove("primaryOrientation");
+        element.classList.add("secondaryOrientation");
+    }
 }
 
 function loadContainerConfig(containerConfig) {
@@ -220,20 +234,16 @@ function reformatWindows(target) {
     populateContainersArray();
 }
 
-function setContainerClass(element) {
-    if (element.id.length % 2) {
-        element.classList.remove("secondaryOrientation");
-        element.classList.add("primaryOrientation");
-    } else {
-        element.classList.remove("primaryOrientation");
-        element.classList.add("secondaryOrientation");
-    }
+// https://stackoverflow.com/questions/26233180/resize-a-div-on-border-drag-and-drop-without-adding-extra-markup
+function resizeWindow() {
+
 }
 
 function setContainerSize() {
     Object.keys(containerSizes).forEach(key => {
         const targetContainer = document.getElementById(key);
 
+        // container 0 has no siblings
         if (key == "0") {
             targetContainer.style.height = "100%";
             targetContainer.style.width = "100%";
