@@ -251,15 +251,8 @@ function resizeListener(e) {
         e.offsetY < layout.borderSize ||                        // top
         e.offsetY > e.target.clientHeight - layout.borderSize   // bottom
     ) {
-        console.log("border");
+        document.addEventListener("mousemove", resizeWindow);
     }
-
-    // if (e.x < layout.borderSize) {
-    //     return;
-    // }
-    console.log(e);
-    // console.log(e.target.clientHeight);
-    // document.addEventListener("mousemove", resizeWindow);
 }
 
 function resizeWindow(e) {
