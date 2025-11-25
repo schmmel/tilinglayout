@@ -9,22 +9,22 @@ let layout = {
 }
 
 
-const containerConfig = ["0", "00", "01"];
+const containerConfig = ["c0", "c00", "c01"];
 const windowConfig = {
-    "00": "\n<a href=\"#\" onclick=\"createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)\">create window</a>",
-    "01": "this is the window content",
+    "w00": "\n<a href=\"#\" onclick=\"createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)\">create window</a>",
+    "w01": "this is the window content",
 };
 const windowTitles = {
-    "00": "TESTING WINDOW",
-    "01": "BIG WINDOW",
+    "w00": "TESTING WINDOW",
+    "w01": "BIG WINDOW",
 }
 
 let containers = [];
 
 let containerSizes = {
     // containers take size from parent unless specified, so container 0 must be specified
-    "0": layout.defaultContainerSize,
-    "00": 5,
+    "c0": layout.defaultContainerSize,
+    "c00": 5,
 }
 
 loadContainerConfig(containerConfig);
@@ -60,11 +60,11 @@ function setContainerFlexDirection() {
     const secondary = [...document.getElementsByClassName("secondaryOrientation")];
 
     primary.forEach(element => {
-        element.style.flexDirection = layout.direction === 'horizontal' ? 'row' : 'column';
+        element.style.flexDirection = layout.direction === 'horizontal' ? 'column' : 'row';
     });
 
     secondary.forEach(element => {
-        element.style.flexDirection = layout.direction === 'horizontal' ? 'column' : 'row';
+        element.style.flexDirection = layout.direction === 'horizontal' ? 'row' : 'column';
     });
 
     setContainerSize();
@@ -95,7 +95,7 @@ function loadContainerConfig(containerConfig) {
             containerSizes[container] = layout.defaultContainerSize
         }
 
-        if (container == "0") {
+        if (container == "c0") {
             layout.root.appendChild(element);
             return;
         }
@@ -107,15 +107,15 @@ function loadContainerConfig(containerConfig) {
 }
 
 function loadWindowConfig(windowConfig) {
-    Object.keys(windowConfig).forEach(containerId => {
+    Object.keys(windowConfig).forEach(windowId => {
         const element = document.createElement("div");
-        element.id = containerId + "w";
+        element.id = windowId;
         element.className = "window";
 
-        createComponent(element, "header", windowTitles[containerId]);
-        createComponent(element, "content", windowConfig[containerId]);
+        createComponent(element, "header", windowTitles[windowId]);
+        createComponent(element, "content", windowConfig[windowId]);
 
-        document.getElementById(containerId).appendChild(element);
+        document.getElementById('c' + windowId.slice(1)).appendChild(element);
     })
 }
 
@@ -123,11 +123,11 @@ function createWindow(targetId, newWindowLocation, content) {
     layout.tempI++
 
     if (targetId === "") {
-        targetId = containers[containers.length - 1] + "w";
+        targetId = 'w' + containers[containers.length - 1].slice(1);
     }
 
     const target = document.getElementById(targetId);
-    const parentContainer = target.id.slice(0, -1);
+    const parentContainer = 'c' + target.id.slice(1);
 
     // create 2 new containers
     for (let i = 0; i < 2; i++) {
@@ -146,20 +146,20 @@ function createWindow(targetId, newWindowLocation, content) {
 
     // create new window and append to specified container
     const element = document.createElement("div");
-    element.id = parentContainer + newWindowLocation.toString() + "w"
+    element.id = 'w' + parentContainer.slice(1) + newWindowLocation.toString();
     element.className = "window";
 
     createComponent(element, "header", content);
     createComponent(element, "content", content);
 
-    document.getElementById(element.id.slice(0, -1)).appendChild(element);
+    document.getElementById('c' + element.id.slice(1)).appendChild(element);
     layout.latestCreatedWindow = element.id;
 
     // append original window to opposite container
     const oldWindowLocation = newWindowLocation ? 0 : 1;
 
     document.getElementById(parentContainer + oldWindowLocation.toString()).appendChild(target);
-    target.id = parentContainer + oldWindowLocation.toString() + "w";
+    target.id = 'w' + parentContainer.slice(1) + oldWindowLocation.toString();
 
     setContainerFlexDirection();
     setContainerSize();
@@ -167,7 +167,7 @@ function createWindow(targetId, newWindowLocation, content) {
 
 function destroyWindow(targetId) {
     // dont destroy window if its the only window
-    if (targetId == "0w") {
+    if (targetId == "w0") {
         return;
     }
 
@@ -176,7 +176,7 @@ function destroyWindow(targetId) {
     }
 
     const target = document.getElementById(targetId);
-    const targetContainerId = targetId.slice(0, -1);
+    const targetContainerId = 'c' + targetId.slice(1);
 
     delete containerSizes[targetContainerId];
 
@@ -197,7 +197,7 @@ function reformatWindows(target) {
 
         if (i == 0) {
             // only true if there is only 1 remaining window
-            if (element.id.length <= 2) {
+            if (element.id.length <= 3) {
                 layout.root.appendChild(element);
             } else {
                 document.getElementById(element.id.slice(0, -2)).appendChild(element);
@@ -208,12 +208,9 @@ function reformatWindows(target) {
         };
 
         if (element.classList.contains("window")) {
-            // remove "w" denoting window
-            element.id = element.id.slice(0, -1);
+            // element.id = element.id.slice(0, -1);
 
             element.id = element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1);
-
-            element.id += "w";
 
             if (originalId === layout.latestCreatedWindow) {
                 layout.latestCreatedWindow = element.id;
@@ -244,7 +241,7 @@ function setContainerSize() {
         const targetContainer = document.getElementById(key);
 
         // container 0 has no siblings
-        if (key == "0") {
+        if (key == "c0") {
             targetContainer.style.height = "100%";
             targetContainer.style.width = "100%";
             return;
