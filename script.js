@@ -235,8 +235,15 @@ function reformatWindows(target) {
     populateContainersArray();
 }
 
-let resizeTarget;
 let resizeDirection;
+let resizeTarget0;
+let resizeTarget1;
+let resizeTarget0Width;
+let resizeTarget1Width;
+let resizeTarget0Height;
+let resizeTarget1Height;
+let mouseX;
+let mouseY;
 
 function resizeListener(e) {
     if (!e.target.classList.contains('window')) {
@@ -264,39 +271,83 @@ function resizeListener(e) {
         return;
     }
 
-    resizeTarget = e.target;
-    document.addEventListener('mousemove', resizeWindow);
-}
-
-function resizeWindow(e) {
-
     // detect window on opposite side of border
-    let primaryTarget = resizeTarget.id;
+    let primaryTarget = e.target;
     let secondaryTarget;
     switch (resizeDirection) {
         case 'left':
-            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft - 1, resizeTarget.offsetTop).id;
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft - 1, primaryTarget.offsetTop);
             break;
         case 'right':
-            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft + resizeTarget.offsetWidth + 1, resizeTarget.offsetTop).id;
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft + primaryTarget.offsetWidth + 1, primaryTarget.offsetTop);
             break;
         case 'top':
-            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft, resizeTarget.offsetTop - 1).id;
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft, primaryTarget.offsetTop - 1);
             break;
         case 'bottom':
-            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft, resizeTarget.offsetTop + resizeTarget.offsetHeight + 1).id;
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft, primaryTarget.offsetTop + primaryTarget.offsetHeight + 1);
             break;
     }
 
-    let sharedParent;
-    for (let i = 0; i < Math.min(primaryTarget.length, secondaryTarget.length); i++) {
-        if (primaryTarget[i] !== secondaryTarget[i]) {
-            sharedParent = 'c' + primaryTarget.slice(1, i - primaryTarget.length);
+    let resizeParent;
+    for (let i = 0; i < Math.min(primaryTarget.id.length, secondaryTarget.id.length); i++) {
+        if (primaryTarget.id[i] !== secondaryTarget.id[i]) {
+            resizeParent = 'c' + primaryTarget.id.slice(1, i - primaryTarget.id.length);
             break;
         }
     }
 
-    console.log(sharedParent);
+    mouseX = e.x;
+    mouseY = e.y;
+
+    resizeTarget0 = document.getElementById(resizeParent + '0');
+    resizeTarget1 = document.getElementById(resizeParent + '1');
+
+    resizeTarget0Width = Number(window.getComputedStyle(resizeTarget0).getPropertyValue('width').slice(0, -2));
+    resizeTarget1Width = Number(window.getComputedStyle(resizeTarget1).getPropertyValue('width').slice(0, -2));
+
+    resizeTarget0Height = Number(window.getComputedStyle(resizeTarget0).getPropertyValue('height').slice(0, -2));
+    resizeTarget1Height = Number(window.getComputedStyle(resizeTarget1).getPropertyValue('height').slice(0, -2));
+
+    document.addEventListener('mousemove', resizeWindow);
+}
+
+function resizeWindow(e) {
+    let dx = e.x - mouseX;
+    let dy = e.y - mouseY;
+
+    switch (resizeDirection) {
+        case 'left':
+        case 'right':
+            let totalWidth = resizeTarget0Width + resizeTarget1Width;
+
+            let resizeTarget0NewWidth = (resizeTarget0Width + dx) / totalWidth;
+            let resizeTarget1NewWidth = (resizeTarget1Width - dx) / totalWidth;
+
+            resizeTarget0.style.width = Math.min(Math.max(10, resizeTarget0NewWidth * 100), 90) + '%';
+            resizeTarget1.style.width = Math.min(Math.max(10, resizeTarget1NewWidth * 100), 90) + '%';
+
+            containerSizes[resizeTarget0.id] = resizeTarget0NewWidth * layout.defaultContainerSize;
+            containerSizes[resizeTarget1.id] = resizeTarget1NewWidth * layout.defaultContainerSize;
+            break;
+        case 'top':
+        case 'bottom':
+            let totalHeight = resizeTarget0Height + resizeTarget1Height;
+
+            let resizeTarget0NewHeight = (resizeTarget0Height + dy) / totalHeight;
+            let resizeTarget1NewHeight = (resizeTarget1Height - dy) / totalHeight;
+
+            resizeTarget0.style.height = Math.min(Math.max(10, resizeTarget0NewHeight * 100), 90) + '%';
+            resizeTarget1.style.height = Math.min(Math.max(10, resizeTarget1NewHeight * 100), 90) + '%';
+
+            containerSizes[resizeTarget0.id] = resizeTarget0NewHeight * layout.defaultContainerSize;
+            containerSizes[resizeTarget1.id] = resizeTarget1NewHeight * layout.defaultContainerSize;
+
+            break;
+    }
+
+    // console.log(dx, dy)
+    // console.log(resizeParent);
 }
 
 document.addEventListener('mouseup', () => {
