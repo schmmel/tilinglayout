@@ -12,7 +12,7 @@ let layout = {
 
 const containerConfig = ['c0', 'c00', 'c01'];
 const windowConfig = {
-    'w00': '\n<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, "created window " + layout.tempI)">create window</a>',
+    'w00': '\n<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'created window \' + layout.tempI)">create window</a>',
     'w01': 'this is the window content',
 };
 const windowTitles = {
@@ -275,16 +275,16 @@ function resizeWindow(e) {
     let secondaryTarget;
     switch (resizeDirection) {
         case 'left':
-            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft - 1, e.y).id;
+            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft - 1, resizeTarget.offsetTop).id;
             break;
         case 'right':
-            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft + resizeTarget.offsetWidth + 1, e.y).id;
+            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft + resizeTarget.offsetWidth + 1, resizeTarget.offsetTop).id;
             break;
         case 'top':
-            secondaryTarget = document.elementFromPoint(e.x, resizeTarget.offsetTop - 1).id;
+            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft, resizeTarget.offsetTop - 1).id;
             break;
         case 'bottom':
-            secondaryTarget = document.elementFromPoint(e.x, resizeTarget.offsetTop + resizeTarget.offsetHeight + 1).id;
+            secondaryTarget = document.elementFromPoint(resizeTarget.offsetLeft, resizeTarget.offsetTop + resizeTarget.offsetHeight + 1).id;
             break;
     }
 
