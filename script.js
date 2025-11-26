@@ -296,7 +296,6 @@ function resizeListener(e) {
             break;
         }
     }
-    console.log(resizeParent)
 
     mouseX = e.x;
     mouseY = e.y;
