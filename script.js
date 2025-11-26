@@ -276,16 +276,16 @@ function resizeListener(e) {
     let secondaryTarget;
     switch (resizeDirection) {
         case 'left':
-            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft - 1, primaryTarget.offsetTop);
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft - 1, primaryTarget.offsetTop + 1);
             break;
         case 'right':
-            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft + primaryTarget.offsetWidth + 1, primaryTarget.offsetTop);
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft + primaryTarget.offsetWidth + 1, primaryTarget.offsetTop + 1);
             break;
         case 'top':
-            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft, primaryTarget.offsetTop - 1);
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft + 1, primaryTarget.offsetTop - 1);
             break;
         case 'bottom':
-            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft, primaryTarget.offsetTop + primaryTarget.offsetHeight + 1);
+            secondaryTarget = document.elementFromPoint(primaryTarget.offsetLeft + 1, primaryTarget.offsetTop + primaryTarget.offsetHeight + 1);
             break;
     }
 
@@ -296,6 +296,7 @@ function resizeListener(e) {
             break;
         }
     }
+    console.log(resizeParent)
 
     mouseX = e.x;
     mouseY = e.y;
@@ -380,11 +381,11 @@ function setContainerSize() {
         const totalSize = containerSizes[parentContainer + '0'] + containerSizes[parentContainer + '1'];
 
         if (targetContainer.style.flexDirection == 'row') {
-            targetContainer.style.height = ((containerSize / totalSize) * 100) + '%';
+            targetContainer.style.height = Math.min(Math.max(10, (containerSize / totalSize) * 100), 90) + '%';
             targetContainer.style.width = '100%';
         } else if (targetContainer.style.flexDirection == 'column') {
             targetContainer.style.height = '100%';
-            targetContainer.style.width = ((containerSize / totalSize) * 100) + '%';
+            targetContainer.style.width = Math.min(Math.max(10, (containerSize / totalSize) * 100), 90) + '%';
         }
     })
 }
