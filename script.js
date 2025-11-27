@@ -9,7 +9,6 @@ let layout = {
     tempI: 0,
 }
 
-
 const containerConfig = ['c0', 'c00', 'c01'];
 const windowConfig = {
     'w00': '\n<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'created window \' + layout.tempI)">create window</a>',
@@ -116,8 +115,6 @@ function loadWindowConfig(windowConfig) {
         createComponent(element, 'content', windowConfig[windowId]);
 
         document.getElementById('c' + windowId.slice(1)).appendChild(element);
-
-        element.addEventListener('mousedown', resizeListener);
     })
 }
 
@@ -156,8 +153,6 @@ function createWindow(targetId, newWindowLocation, content) {
 
     document.getElementById('c' + element.id.slice(1)).appendChild(element);
     layout.latestCreatedWindow = element.id;
-
-    element.addEventListener('mousedown', resizeListener);
 
     // append original window to opposite container
     const oldWindowLocation = newWindowLocation ? 0 : 1;
@@ -235,6 +230,8 @@ function reformatWindows(target) {
     populateContainersArray();
 }
 
+window.addEventListener('mousemove', mouseListener);
+
 let resizeDirection;
 let resizeTarget0;
 let resizeTarget1;
@@ -245,17 +242,16 @@ let resizeTarget1Height;
 let mouseX;
 let mouseY;
 
-function resizeListener(e) {
-    if (!e.target.classList.contains('window')) {
+let resizing = 0;
+
+function mouseListener(e) {
+    if (resizing == 1) {
         return;
     }
 
-    if ( // check whether mousedown is on edge of screen
-        e.clientX < 0 + (layout.borderSize + 8) ||              // left
-        e.clientX > layout.width - (layout.borderSize + 8) ||   // right
-        e.clientY < 0 + (layout.borderSize + 8) ||              // top
-        e.clientY > layout.height - (layout.borderSize + 8)     // bottom
-    ) {
+    if (e.target === document || !e.target?.classList.contains('window')) {
+        layout.root.style.cursor = "default";
+        document.removeEventListener('mousedown', resizableListener);
         return;
     }
 
@@ -268,10 +264,32 @@ function resizeListener(e) {
     } else if (e.offsetY > e.target.clientHeight - layout.borderSize) {
         resizeDirection = 'bottom';
     } else {
+        layout.root.style.cursor = "default";
+        document.removeEventListener('mousedown', resizableListener);
         return;
     }
 
-    // detect window on opposite side of border
+    if ( // check whether mouse is on edge of screen
+        e.clientX < 0 + (layout.borderSize + 8) ||              // left
+        e.clientX > layout.width - (layout.borderSize + 8) ||   // right
+        e.clientY < 0 + (layout.borderSize + 8) ||              // top
+        e.clientY > layout.height - (layout.borderSize + 8)     // bottom
+    ) {
+        layout.root.style.cursor = "default";
+        document.removeEventListener('mousedown', resizableListener);
+        return;
+    }
+
+    if (resizeDirection == 'left' || resizeDirection == 'right') {
+        layout.root.style.cursor = "ew-resize";
+    } else {
+        layout.root.style.cursor = "ns-resize";
+    }
+
+    document.addEventListener('mousedown', resizableListener);
+}
+
+function resizableListener(e) {
     let primaryTarget = e.target;
     let secondaryTarget;
     switch (resizeDirection) {
@@ -313,6 +331,9 @@ function resizeListener(e) {
 }
 
 function resizeWindow(e) {
+    document.removeEventListener('mousedown', resizableListener);
+    resizing = 1;
+
     let dx = e.x - mouseX;
     let dy = e.y - mouseY;
 
@@ -345,13 +366,11 @@ function resizeWindow(e) {
 
             break;
     }
-
-    // console.log(dx, dy)
-    // console.log(resizeParent);
 }
 
 document.addEventListener('mouseup', () => {
     document.removeEventListener('mousemove', resizeWindow);
+    resizing = 0;
 });
 
 function setContainerSize() {
