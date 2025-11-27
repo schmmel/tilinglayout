@@ -5,6 +5,7 @@ let layout = {
     height: 0,
     borderSize: 4, // additional to css border
     defaultContainerSize: 1,
+    minimumWindowSize: 64,
     latestCreatedWindow: '',
     tempI: 0,
 }
@@ -348,27 +349,27 @@ function resizeWindow(e) {
         case 'right':
             let totalWidth = resizeTarget0Width + resizeTarget1Width;
 
-            let resizeTarget0NewWidth = (resizeTarget0Width + dx) / totalWidth;
-            let resizeTarget1NewWidth = (resizeTarget1Width - dx) / totalWidth;
+            let resizeTarget0NewWidth = resizeTarget0Width + dx;
+            let resizeTarget1NewWidth = resizeTarget1Width - dx;
 
-            resizeTarget0.style.width = Math.min(Math.max(10, resizeTarget0NewWidth * 100), 90) + '%';
-            resizeTarget1.style.width = Math.min(Math.max(10, resizeTarget1NewWidth * 100), 90) + '%';
+            resizeTarget0.style.width = Math.min(Math.max(layout.minimumWindowSize, resizeTarget0NewWidth), totalWidth - layout.minimumWindowSize) + 'px';
+            resizeTarget1.style.width = Math.min(Math.max(layout.minimumWindowSize, resizeTarget1NewWidth), totalWidth - layout.minimumWindowSize) + 'px';
 
-            containerSizes[resizeTarget0.id] = resizeTarget0NewWidth * layout.defaultContainerSize;
-            containerSizes[resizeTarget1.id] = resizeTarget1NewWidth * layout.defaultContainerSize;
+            containerSizes[resizeTarget0.id] = (resizeTarget0NewWidth / totalWidth) * layout.defaultContainerSize;
+            containerSizes[resizeTarget1.id] = (resizeTarget1NewWidth / totalWidth) * layout.defaultContainerSize;
             break;
         case 'top':
         case 'bottom':
             let totalHeight = resizeTarget0Height + resizeTarget1Height;
 
-            let resizeTarget0NewHeight = (resizeTarget0Height + dy) / totalHeight;
-            let resizeTarget1NewHeight = (resizeTarget1Height - dy) / totalHeight;
+            let resizeTarget0NewHeight = resizeTarget0Height + dy;
+            let resizeTarget1NewHeight = resizeTarget1Height - dy;
 
-            resizeTarget0.style.height = Math.min(Math.max(10, resizeTarget0NewHeight * 100), 90) + '%';
-            resizeTarget1.style.height = Math.min(Math.max(10, resizeTarget1NewHeight * 100), 90) + '%';
+            resizeTarget0.style.height = Math.min(Math.max(layout.minimumWindowSize, resizeTarget0NewHeight), totalHeight - layout.minimumWindowSize) + 'px';
+            resizeTarget1.style.height = Math.min(Math.max(layout.minimumWindowSize, resizeTarget1NewHeight), totalHeight - layout.minimumWindowSize) + 'px';
 
-            containerSizes[resizeTarget0.id] = resizeTarget0NewHeight * layout.defaultContainerSize;
-            containerSizes[resizeTarget1.id] = resizeTarget1NewHeight * layout.defaultContainerSize;
+            containerSizes[resizeTarget0.id] = (resizeTarget0NewHeight / totalHeight) * layout.defaultContainerSize;
+            containerSizes[resizeTarget1.id] = (resizeTarget1NewHeight / totalHeight) * layout.defaultContainerSize;
 
             break;
     }
@@ -406,12 +407,15 @@ function setContainerSize() {
 
         const totalSize = containerSizes[parentContainer + '0'] + containerSizes[parentContainer + '1'];
 
+        const totalHeight = document.getElementById(parentContainer).clientHeight;
+        const totalWidth = document.getElementById(parentContainer).clientWidth;
+
         if (targetContainer.style.flexDirection == 'row') {
-            targetContainer.style.height = Math.min(Math.max(10, (containerSize / totalSize) * 100), 90) + '%';
+            targetContainer.style.height = Math.min(Math.max(layout.minimumWindowSize, (containerSize / totalSize) * totalHeight), totalHeight - layout.minimumWindowSize) + 'px';
             targetContainer.style.width = '100%';
         } else if (targetContainer.style.flexDirection == 'column') {
             targetContainer.style.height = '100%';
-            targetContainer.style.width = Math.min(Math.max(10, (containerSize / totalSize) * 100), 90) + '%';
+            targetContainer.style.width = Math.min(Math.max(layout.minimumWindowSize, (containerSize / totalSize) * totalWidth), totalWidth - layout.minimumWindowSize) + 'px';
         }
     })
 }
