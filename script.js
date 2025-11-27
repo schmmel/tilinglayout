@@ -330,8 +330,14 @@ function resizableListener(e) {
     document.addEventListener('mousemove', resizeWindow);
 }
 
+function disableSelect(e) {
+    e.preventDefault();
+}
+
 function resizeWindow(e) {
     document.removeEventListener('mousedown', resizableListener);
+    document.addEventListener('selectstart', disableSelect);
+
     resizing = 1;
 
     let dx = e.x - mouseX;
@@ -370,6 +376,8 @@ function resizeWindow(e) {
 
 document.addEventListener('mouseup', () => {
     document.removeEventListener('mousemove', resizeWindow);
+    document.removeEventListener('selectstart', disableSelect)
+
     resizing = 0;
 });
 
