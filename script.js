@@ -43,6 +43,9 @@ clientParameters();
 //     e.preventDefault();
 // });
 
+createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
+createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
+
 window.addEventListener('resize', () => {
     clientParameters();
 });
@@ -240,6 +243,8 @@ let resizeTarget0Width;
 let resizeTarget1Width;
 let resizeTarget0Height;
 let resizeTarget1Height;
+let resizeTarget0Min;
+let resizeTarget1Min;
 let mouseX;
 let mouseY;
 
@@ -352,8 +357,15 @@ function resizeWindow(e) {
             let resizeTarget0NewWidth = resizeTarget0Width + dx;
             let resizeTarget1NewWidth = resizeTarget1Width - dx;
 
-            resizeTarget0.style.width = Math.min(Math.max(layout.minimumWindowSize, resizeTarget0NewWidth), totalWidth - layout.minimumWindowSize) + 'px';
-            resizeTarget1.style.width = Math.min(Math.max(layout.minimumWindowSize, resizeTarget1NewWidth), totalWidth - layout.minimumWindowSize) + 'px';
+            // fibonacci
+
+            console.log(Math.max(1, Math.ceil(getContainerDepth(resizeTarget0) / 2)))
+            // console.log(Math.max(1, Math.ceil(getContainerDepth(resizeTarget1) / 2)))
+            // getContainerDepth(resizeTarget0)
+            // getContainerDepth(resizeTarget1)
+
+            resizeTarget0.style.width = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewWidth), totalWidth - resizeTarget1Min) + 'px';
+            resizeTarget1.style.width = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewWidth), totalWidth - resizeTarget0Min) + 'px';
 
             containerSizes[resizeTarget0.id] = (resizeTarget0NewWidth / totalWidth) * layout.defaultContainerSize;
             containerSizes[resizeTarget1.id] = (resizeTarget1NewWidth / totalWidth) * layout.defaultContainerSize;
@@ -365,8 +377,8 @@ function resizeWindow(e) {
             let resizeTarget0NewHeight = resizeTarget0Height + dy;
             let resizeTarget1NewHeight = resizeTarget1Height - dy;
 
-            resizeTarget0.style.height = Math.min(Math.max(layout.minimumWindowSize, resizeTarget0NewHeight), totalHeight - layout.minimumWindowSize) + 'px';
-            resizeTarget1.style.height = Math.min(Math.max(layout.minimumWindowSize, resizeTarget1NewHeight), totalHeight - layout.minimumWindowSize) + 'px';
+            resizeTarget0.style.height = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewHeight), totalHeight - resizeTarget1Min) + 'px';
+            resizeTarget1.style.height = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewHeight), totalHeight - resizeTarget0Min) + 'px';
 
             containerSizes[resizeTarget0.id] = (resizeTarget0NewHeight / totalHeight) * layout.defaultContainerSize;
             containerSizes[resizeTarget1.id] = (resizeTarget1NewHeight / totalHeight) * layout.defaultContainerSize;
@@ -463,4 +475,25 @@ function createComponent(target, componentType, content) {
             break;
     }
 
+}
+
+function getContainerDepth(container) {
+    const containerChildren = [...container.children].filter(
+        child => child.classList.contains('container')
+    );
+
+    if (containerChildren.length === 0) {
+        return 0;
+    }
+
+    let maxChildDepth = 0;
+
+    for (const child of containerChildren) {
+        const depth = getContainerDepth(child);
+        if (depth > maxChildDepth) {
+            maxChildDepth = depth;
+        } 
+    }
+
+    return maxChildDepth + 1;
 }
