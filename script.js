@@ -45,6 +45,13 @@ clientParameters();
 
 createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
 createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
+createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
+createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
+createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
+createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
+
+
+
 
 window.addEventListener('resize', () => {
     clientParameters();
@@ -357,18 +364,14 @@ function resizeWindow(e) {
             let resizeTarget0NewWidth = resizeTarget0Width + dx;
             let resizeTarget1NewWidth = resizeTarget1Width - dx;
 
-            // fibonacci
+            resizeTarget0Min = getContainerChildrenCount(resizeTarget0, 'column') * layout.minimumWindowSize;
+            resizeTarget1Min = getContainerChildrenCount(resizeTarget1, 'column') * layout.minimumWindowSize;
 
-            console.log(Math.max(1, Math.ceil(getContainerDepth(resizeTarget0) / 2)))
-            // console.log(Math.max(1, Math.ceil(getContainerDepth(resizeTarget1) / 2)))
-            // getContainerDepth(resizeTarget0)
-            // getContainerDepth(resizeTarget1)
+            // resizeTarget0.style.width = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewWidth), totalWidth - resizeTarget1Min) + 'px';
+            // resizeTarget1.style.width = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewWidth), totalWidth - resizeTarget0Min) + 'px';
 
-            resizeTarget0.style.width = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewWidth), totalWidth - resizeTarget1Min) + 'px';
-            resizeTarget1.style.width = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewWidth), totalWidth - resizeTarget0Min) + 'px';
-
-            containerSizes[resizeTarget0.id] = (resizeTarget0NewWidth / totalWidth) * layout.defaultContainerSize;
-            containerSizes[resizeTarget1.id] = (resizeTarget1NewWidth / totalWidth) * layout.defaultContainerSize;
+            containerSizes[resizeTarget0.id] = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewWidth), totalWidth - resizeTarget1Min);
+            containerSizes[resizeTarget1.id] = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewWidth), totalWidth - resizeTarget0Min);
             break;
         case 'top':
         case 'bottom':
@@ -377,14 +380,19 @@ function resizeWindow(e) {
             let resizeTarget0NewHeight = resizeTarget0Height + dy;
             let resizeTarget1NewHeight = resizeTarget1Height - dy;
 
-            resizeTarget0.style.height = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewHeight), totalHeight - resizeTarget1Min) + 'px';
-            resizeTarget1.style.height = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewHeight), totalHeight - resizeTarget0Min) + 'px';
+            resizeTarget0Min = getContainerChildrenCount(resizeTarget0, 'row') * layout.minimumWindowSize;
+            resizeTarget1Min = getContainerChildrenCount(resizeTarget1, 'row') * layout.minimumWindowSize;
 
-            containerSizes[resizeTarget0.id] = (resizeTarget0NewHeight / totalHeight) * layout.defaultContainerSize;
-            containerSizes[resizeTarget1.id] = (resizeTarget1NewHeight / totalHeight) * layout.defaultContainerSize;
+            // resizeTarget0.style.height = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewHeight), totalHeight - resizeTarget1Min) + 'px';
+            // resizeTarget1.style.height = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewHeight), totalHeight - resizeTarget0Min) + 'px';
+
+            containerSizes[resizeTarget0.id] = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewHeight), totalHeight - resizeTarget1Min);
+            containerSizes[resizeTarget1.id] = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewHeight), totalHeight - resizeTarget0Min);
 
             break;
     }
+
+    setContainerSize();
 }
 
 document.addEventListener('mouseup', () => {
@@ -422,12 +430,17 @@ function setContainerSize() {
         const totalHeight = document.getElementById(parentContainer).clientHeight;
         const totalWidth = document.getElementById(parentContainer).clientWidth;
 
+        const targetSibling = targetContainer.nextSibling || targetContainer.previousSibling;
+
+        const targetMinSize = getContainerChildrenCount(targetContainer, targetContainer.style.flexDirection) * layout.minimumWindowSize;
+        const targetSiblingMinSize = getContainerChildrenCount(targetSibling, targetSibling.style.flexDirection) * layout.minimumWindowSize;
+
         if (targetContainer.style.flexDirection == 'row') {
-            targetContainer.style.height = Math.min(Math.max(layout.minimumWindowSize, (containerSize / totalSize) * totalHeight), totalHeight - layout.minimumWindowSize) + 'px';
+            targetContainer.style.height = Math.min(Math.max(targetMinSize, (containerSize / totalSize) * totalHeight), totalHeight - targetSiblingMinSize) + 'px';
             targetContainer.style.width = '100%';
         } else if (targetContainer.style.flexDirection == 'column') {
             targetContainer.style.height = '100%';
-            targetContainer.style.width = Math.min(Math.max(layout.minimumWindowSize, (containerSize / totalSize) * totalWidth), totalWidth - layout.minimumWindowSize) + 'px';
+            targetContainer.style.width = Math.min(Math.max(targetMinSize, (containerSize / totalSize) * totalWidth), totalWidth - targetSiblingMinSize) + 'px';
         }
     })
 }
@@ -477,23 +490,34 @@ function createComponent(target, componentType, content) {
 
 }
 
-function getContainerDepth(container) {
-    const containerChildren = [...container.children].filter(
-        child => child.classList.contains('container')
-    );
+function getContainerChildrenCount(container, direction) {
+    let count = 0;
 
-    if (containerChildren.length === 0) {
-        return 0;
+    function hasDescendantSameDirection(elem) {
+        for (const child of elem.children) {
+            if (!child.classList.contains('container')) continue;
+
+            if (child.style.flexDirection === direction) {
+                return true;
+            }
+
+            if (hasDescendantSameDirection(child)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    let maxChildDepth = 0;
-
-    for (const child of containerChildren) {
-        const depth = getContainerDepth(child);
-        if (depth > maxChildDepth) {
-            maxChildDepth = depth;
-        } 
+    // count this container if it matches the direction and doesnt have any children with the same direction
+    if (container.style.flexDirection === direction && !hasDescendantSameDirection(container)) {
+        count += 1;
     }
 
-    return maxChildDepth + 1;
+    for (const child of container.children) {
+        if (child.classList.contains('container')) {
+            count += getContainerChildrenCount(child, direction);
+        }
+    }
+
+    return count;
 }
