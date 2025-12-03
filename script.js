@@ -364,8 +364,8 @@ function resizeWindow(e) {
             let resizeTarget0NewWidth = resizeTarget0Width + dx;
             let resizeTarget1NewWidth = resizeTarget1Width - dx;
 
-            resizeTarget0Min = getContainerChildrenCount(resizeTarget0, 'column') * layout.minimumWindowSize;
-            resizeTarget1Min = getContainerChildrenCount(resizeTarget1, 'column') * layout.minimumWindowSize;
+            resizeTarget0Min = getContainerChildrenDensity(resizeTarget0, 'column') * layout.minimumWindowSize;
+            resizeTarget1Min = getContainerChildrenDensity(resizeTarget1, 'column') * layout.minimumWindowSize;
 
             // resizeTarget0.style.width = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewWidth), totalWidth - resizeTarget1Min) + 'px';
             // resizeTarget1.style.width = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewWidth), totalWidth - resizeTarget0Min) + 'px';
@@ -380,8 +380,8 @@ function resizeWindow(e) {
             let resizeTarget0NewHeight = resizeTarget0Height + dy;
             let resizeTarget1NewHeight = resizeTarget1Height - dy;
 
-            resizeTarget0Min = getContainerChildrenCount(resizeTarget0, 'row') * layout.minimumWindowSize;
-            resizeTarget1Min = getContainerChildrenCount(resizeTarget1, 'row') * layout.minimumWindowSize;
+            resizeTarget0Min = getContainerChildrenDensity(resizeTarget0, 'row') * layout.minimumWindowSize;
+            resizeTarget1Min = getContainerChildrenDensity(resizeTarget1, 'row') * layout.minimumWindowSize;
 
             // resizeTarget0.style.height = Math.min(Math.max(resizeTarget0Min, resizeTarget0NewHeight), totalHeight - resizeTarget1Min) + 'px';
             // resizeTarget1.style.height = Math.min(Math.max(resizeTarget1Min, resizeTarget1NewHeight), totalHeight - resizeTarget0Min) + 'px';
@@ -432,8 +432,8 @@ function setContainerSize() {
 
         const targetSibling = targetContainer.nextSibling || targetContainer.previousSibling;
 
-        const targetMinSize = getContainerChildrenCount(targetContainer, targetContainer.style.flexDirection) * layout.minimumWindowSize;
-        const targetSiblingMinSize = getContainerChildrenCount(targetSibling, targetSibling.style.flexDirection) * layout.minimumWindowSize;
+        const targetMinSize = getContainerChildrenDensity(targetContainer, targetContainer.style.flexDirection) * layout.minimumWindowSize;
+        const targetSiblingMinSize = getContainerChildrenDensity(targetSibling, targetSibling.style.flexDirection) * layout.minimumWindowSize;
 
         if (targetContainer.style.flexDirection == 'row') {
             targetContainer.style.height = Math.min(Math.max(targetMinSize, (containerSize / totalSize) * totalHeight), totalHeight - targetSiblingMinSize) + 'px';
@@ -470,6 +470,7 @@ function createComponent(target, componentType, content) {
             component = document.createElement('span');
             component.className = 'title';
             component.innerText = content.toUpperCase();
+            component.setAttribute('onmousedown', 'pickupWindow(this.parentElement.parentElement)');
             target.appendChild(component);
             break;
         case 'close-button':
@@ -490,7 +491,7 @@ function createComponent(target, componentType, content) {
 
 }
 
-function getContainerChildrenCount(container, direction) {
+function getContainerChildrenDensity(container, direction) {
     let count = 0;
 
     function hasDescendantSameDirection(elem) {
@@ -515,9 +516,80 @@ function getContainerChildrenCount(container, direction) {
 
     for (const child of container.children) {
         if (child.classList.contains('container')) {
-            count += getContainerChildrenCount(child, direction);
+            count += getContainerChildrenDensity(child, direction);
         }
     }
 
     return count;
+}
+
+let moving = 0;
+let heldWindow;
+
+function pickupWindow(target) {
+    if (moving == 1) {
+        return;
+    }
+
+    moving = 1;
+    document.addEventListener('selectstart', disableSelect);
+
+    heldWindow = target.cloneNode(true);
+    destroyWindow(target.id);
+
+    document.addEventListener('mouseup', placeWindow);
+}
+
+function placeWindow(e) {
+    const parentContainer = e.target.closest('.container');
+
+    // create 2 new containers
+    for (let i = 0; i < 2; i++) {
+        const element = document.createElement('div');
+        element.id = parentContainer.id + i.toString();
+        element.className = 'container';
+
+        if (containerSizes[element.id] == undefined) {
+            containerSizes[element.id] = containerSizes[parentContainer.id];
+        }
+
+        setContainerClass(element);
+
+        parentContainer.appendChild(element);
+    }
+
+    let heldWindowLocation;
+
+    if ((parentContainer.style.flexDirection == 'column' && e.offsetY > (parentContainer.offsetHeight / 2)) ||
+        (parentContainer.style.flexDirection == 'row' && e.offsetX > (parentContainer.offsetWidth / 2))) {
+        heldWindowLocation = 1;
+    } else {
+        heldWindowLocation = 0;
+    }
+
+    // append held window to new container
+    document.getElementById(parentContainer.id + heldWindowLocation.toString()).appendChild(heldWindow);
+
+    if (heldWindow.id == layout.latestCreatedWindow) {
+        layout.latestCreatedWindow = 'w' + parentContainer.id.slice(1) + heldWindowLocation.toString();
+    }
+
+    heldWindow.id = 'w' + parentContainer.id.slice(1) + heldWindowLocation.toString();
+
+
+    // append original window to opposite container
+    let originalWindow = document.getElementById('w' + parentContainer.id.slice(1));
+
+    const oldWindowLocation = heldWindowLocation ? 0 : 1;
+    originalWindow.id = originalWindow.id + oldWindowLocation.toString();
+
+    document.getElementById(parentContainer.id + oldWindowLocation.toString()).appendChild(originalWindow);
+
+    setContainerFlexDirection();
+    setContainerSize();
+
+    heldWindow = null;
+
+    moving = 0;
+    document.removeEventListener('mouseup', placeWindow);
 }
