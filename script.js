@@ -570,7 +570,7 @@ function placeWindow(e) {
     // append held window to new container
     document.getElementById(parentContainer.id + heldWindowLocation.toString()).appendChild(heldWindow);
 
-    if (heldWindow.id == layout.latestCreatedWindow) {
+    if (layout.latestCreatedWindow == "") {
         layout.latestCreatedWindow = 'w' + parentContainer.id.slice(1) + heldWindowLocation.toString();
     }
 
