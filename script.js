@@ -184,7 +184,7 @@ function destroyWindow(targetId) {
     const target = document.getElementById(targetId);
     const targetContainerId = 'c' + targetId.slice(1);
 
-    delete containerSizes[targetContainerId];
+    // delete containerSizes[targetContainerId];
 
     const affectedContainer = target.parentElement.parentElement;
 
@@ -226,7 +226,7 @@ function reformatWindows(target) {
             if (containerSizes[element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1)] == layout.defaultContainerSize) {
                 containerSizes[element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1)] = containerSizes[element.id];
             }
-            delete containerSizes[element.id];
+            // delete containerSizes[element.id];
 
             element.id = element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1);
 
@@ -257,6 +257,16 @@ let resizing = 0;
 
 function mouseListener(e) {
     if (resizing == 1) {
+        return;
+    }
+
+    if (moving == 1) {
+        layout.root.style.cursor = "grabbing";
+        return;
+    }
+
+    if (e.target?.classList.contains('title')) {
+        layout.root.style.cursor = "grab";
         return;
     }
 
@@ -301,6 +311,11 @@ function mouseListener(e) {
 }
 
 function resizableListener(e) {
+    if (moving == 1) {
+        document.removeEventListener('mousedown', resizableListener);
+        return;
+    }
+
     let primaryTarget = e.target;
     let secondaryTarget;
     switch (resizeDirection) {
