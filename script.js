@@ -47,10 +47,6 @@ createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
 createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
 createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
 createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
-createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
-createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
-
-
 
 
 window.addEventListener('resize', () => {
@@ -227,7 +223,9 @@ function reformatWindows(target) {
             }
 
         } else if (element.classList.contains('container')) {
-            containerSizes[element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1)] = containerSizes[element.id];
+            if (containerSizes[element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1)] == layout.defaultContainerSize) {
+                containerSizes[element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1)] = containerSizes[element.id];
+            }
             delete containerSizes[element.id];
 
             element.id = element.id.slice(0, nthDigitToRemove) + element.id.slice(nthDigitToRemove + 1);
@@ -405,6 +403,9 @@ document.addEventListener('mouseup', () => {
 function setContainerSize() {
     Object.keys(containerSizes).forEach(key => {
         const targetContainer = document.getElementById(key);
+        if (targetContainer == null) {
+            return;
+        }
 
         // container 0 has no siblings
         if (key == 'c0') {
