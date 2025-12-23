@@ -547,6 +547,8 @@ function pickupWindow(target) {
         return;
     }
 
+    layout.root.style.cursor = "grabbing";
+
     moving = 1;
     document.addEventListener('selectstart', disableSelect);
 
