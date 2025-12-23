@@ -255,6 +255,9 @@ let mouseY;
 
 let resizing = 0;
 
+let placePreview = document.createElement('div');
+placePreview.className = 'placePreview';
+
 function mouseListener(e) {
     if (resizing == 1) {
         return;
@@ -262,6 +265,16 @@ function mouseListener(e) {
 
     if (moving == 1) {
         layout.root.style.cursor = "grabbing";
+
+        if (e.target !== document && !e.target?.classList.contains('placePreview')) {
+            e.target.closest('.window').insertBefore(placePreview, e.target.closest('.window').firstChild);
+            if (e.target.closest('.container').style.flexDirection == 'row') {
+                placePreview.className = e.offsetX < (e.target.closest('.container').offsetWidth / 2) ? 'placePreview previewHorizontal0' : 'placePreview previewHorizontal1';
+            } else {
+                placePreview.className = e.offsetY < (e.target.closest('.container').offsetHeight / 2) ? 'placePreview previewVertical0' : 'placePreview previewVertical1';
+            }
+        }
+
         return;
     }
 
@@ -560,6 +573,8 @@ function pickupWindow(target) {
 
 function placeWindow(e) {
     const parentContainer = e.target.closest('.container');
+
+    placePreview.remove();
 
     // create 2 new containers
     for (let i = 0; i < 2; i++) {

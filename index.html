@@ -19,6 +19,7 @@
     }
 
     .window {
+        position: relative;
         height: calc(100% - 16px);
         width: calc(100% - 16px);
         border: blue 8px double;
@@ -53,6 +54,34 @@
 
     .content {
         padding: 6px;
+    }
+
+    .placePreview {
+        position: absolute;
+        z-index: 1;
+        background-color: #66666666;
+    }
+
+    .previewHorizontal0 {
+        height: 100%;
+        width: 50%;
+    }
+    
+    .previewHorizontal1 {
+        height: 100%;
+        width: 50%;
+        left: 50%;
+    }
+
+    .previewVertical0 {
+        height: 50%;
+        width: 100%;
+    }
+
+    .previewVertical1 {
+        height: 50%;
+        top: 50%;
+        width: 100%;
     }
 </style>
 
