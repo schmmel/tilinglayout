@@ -7,17 +7,18 @@ let layout = {
     defaultContainerSize: 1,
     minimumWindowSize: 64,
     latestCreatedWindow: '',
-    tempI: 0,
 }
 
 const containerConfig = ['c0', 'c00', 'c01'];
 const windowConfig = {
-    'w00': '\n<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'created window \' + layout.tempI)">create window</a>',
-    'w01': 'this is the window content',
+    'w00': 'welcome',
+    'w01': 'about',
 };
-const windowTitles = {
-    'w00': 'TESTING WINDOW',
-    'w01': 'BIG WINDOW',
+
+const windows = {
+    'welcome': ['WELCOME', '\n<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'test\')">create window</a>'],
+    'about': ['ABOUT', ''],
+    'test': ['TEST', 'test :)'],
 }
 
 let containers = [];
@@ -42,12 +43,6 @@ clientParameters();
 // window.addEventListener('contextmenu', (e) => {
 //     e.preventDefault();
 // });
-
-createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
-createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
-createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
-createWindow(layout.latestCreatedWindow, 1, 'created window ' + layout.tempI)
-
 
 window.addEventListener('resize', () => {
     clientParameters();
@@ -118,16 +113,14 @@ function loadWindowConfig(windowConfig) {
         element.id = windowId;
         element.className = 'window';
 
-        createComponent(element, 'header', windowTitles[windowId]);
-        createComponent(element, 'content', windowConfig[windowId]);
+        createComponent(element, 'header', windows[windowConfig[windowId]][0]);
+        createComponent(element, 'content', windows[windowConfig[windowId]][1]);
 
         document.getElementById('c' + windowId.slice(1)).appendChild(element);
     })
 }
 
-function createWindow(targetId, newWindowLocation, content) {
-    layout.tempI++
-
+function createWindow(targetId, newWindowLocation, windowName) {
     if (targetId === '') {
         targetId = 'w' + containers[containers.length - 1].slice(1);
     }
@@ -155,8 +148,10 @@ function createWindow(targetId, newWindowLocation, content) {
     element.id = 'w' + parentContainer.slice(1) + newWindowLocation.toString();
     element.className = 'window';
 
-    createComponent(element, 'header', content);
-    createComponent(element, 'content', content);
+    windowPreset = windows[windowName];
+
+    createComponent(element, 'header', windowPreset[0]);
+    createComponent(element, 'content', windowPreset[1]);
 
     document.getElementById('c' + element.id.slice(1)).appendChild(element);
     layout.latestCreatedWindow = element.id;
