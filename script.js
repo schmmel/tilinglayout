@@ -9,16 +9,30 @@ let layout = {
     latestCreatedWindow: '',
 }
 
-const containerConfig = ['c0', 'c00', 'c01'];
-const windowConfig = {
+const startupContainers = ['c0', 'c00', 'c01'];
+const startupWindows = {
     'w00': 'welcome',
     'w01': 'about',
 };
 
-const windows = {
-    'welcome': ['WELCOME', '\n<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'test\')">create window</a>'],
-    'about': ['ABOUT', ''],
-    'test': ['TEST', 'test :)'],
+const windowConfig = {
+    'welcome': [
+        'WELCOME',
+        '<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">RAYCASTER</a><br> \
+        <br><br><a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'test\')">create test window</a>'
+    ],
+    'about': [
+        'ABOUT',
+        'this is my website'
+    ],
+    'raycaster': [
+        'RAYCASTER', 
+        'i made a raycaster in js and then in js but better and then in c'
+    ],
+    'test': [
+        'TEST', 
+        'test :)'
+    ],
 }
 
 let containers = [];
@@ -28,8 +42,8 @@ let containerSizes = {
     'c01': (2 / 3) * layout.defaultContainerSize,
 }
 
-loadContainerConfig(containerConfig);
-loadWindowConfig(windowConfig);
+loadContainerConfig(startupContainers);
+loadWindowConfig(startupWindows);
 clientParameters();
 
 // for testing only
@@ -107,14 +121,14 @@ function loadContainerConfig(containerConfig) {
     populateContainersArray();
 }
 
-function loadWindowConfig(windowConfig) {
-    Object.keys(windowConfig).forEach(windowId => {
+function loadWindowConfig(startupWindows) {
+    Object.keys(startupWindows).forEach(windowId => {
         const element = document.createElement('div');
         element.id = windowId;
         element.className = 'window';
 
-        createComponent(element, 'header', windows[windowConfig[windowId]][0]);
-        createComponent(element, 'content', windows[windowConfig[windowId]][1]);
+        createComponent(element, 'header', windowConfig[startupWindows[windowId]][0]);
+        createComponent(element, 'content', windowConfig[startupWindows[windowId]][1]);
 
         document.getElementById('c' + windowId.slice(1)).appendChild(element);
     })
@@ -148,7 +162,7 @@ function createWindow(targetId, newWindowLocation, windowName) {
     element.id = 'w' + parentContainer.slice(1) + newWindowLocation.toString();
     element.className = 'window';
 
-    windowPreset = windows[windowName];
+    windowPreset = windowConfig[windowName];
 
     createComponent(element, 'header', windowPreset[0]);
     createComponent(element, 'content', windowPreset[1]);
