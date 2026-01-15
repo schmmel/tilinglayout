@@ -278,9 +278,9 @@ function mouseListener(e) {
         if (e.target !== document && !e.target?.classList.contains('placePreview')) {
             e.target.closest('.window').insertBefore(placePreview, e.target.closest('.window').firstChild);
             if (e.target.closest('.container').style.flexDirection == 'row') {
-                placePreview.className = e.offsetX < (e.target.closest('.container').offsetWidth / 2) ? 'placePreview previewHorizontal0' : 'placePreview previewHorizontal1';
+                placePreview.className = e.offsetX < (e.target.closest('.container').offsetWidth / 2) ? 'placePreview previewHorizontal0 zero' : 'placePreview previewHorizontal1 one';
             } else {
-                placePreview.className = e.offsetY < (e.target.closest('.container').offsetHeight / 2) ? 'placePreview previewVertical0' : 'placePreview previewVertical1';
+                placePreview.className = e.offsetY < (e.target.closest('.container').offsetHeight / 2) ? 'placePreview previewVertical0 zero' : 'placePreview previewVertical1 one';
             }
         }
 
@@ -583,6 +583,8 @@ function pickupWindow(target) {
 function placeWindow(e) {
     const parentContainer = e.target.closest('.container');
 
+    const heldWindowLocation = placePreview.classList.contains("zero") ? 0 : 1;
+
     placePreview.remove();
 
     // create 2 new containers
@@ -598,15 +600,6 @@ function placeWindow(e) {
         setContainerClass(element);
 
         parentContainer.appendChild(element);
-    }
-
-    let heldWindowLocation;
-
-    if ((parentContainer.style.flexDirection == 'column' && e.offsetY > (parentContainer.offsetHeight / 2)) ||
-        (parentContainer.style.flexDirection == 'row' && e.offsetX > (parentContainer.offsetWidth / 2))) {
-        heldWindowLocation = 1;
-    } else {
-        heldWindowLocation = 0;
     }
 
     // append held window to new container
