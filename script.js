@@ -18,19 +18,35 @@ const startupWindows = {
 const windowConfig = {
     'welcome': [
         'WELCOME',
-        '<a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">RAYCASTER</a><br> \
-        <br><br><a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'test\')">create test window</a>'
+        'projects<br> \
+        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">RAYCASTER</a><br> \
+        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'aoc\')">Advent Of Code 2025</a><br>'
     ],
     'about': [
         'ABOUT',
         'this is my website'
     ],
     'raycaster': [
-        'RAYCASTER', 
-        'i made a raycaster in js and then in js but better and then in c'
+        'RAYCASTER',
+        'raycaster made in c using the raylib library<br><br> \
+        previous raycasters<br> \
+        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster-js-bad\')">javascript raycaster the first</a><br> \
+        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster-js-good\')">javascript raycaster the second</a><br>'
+    ],
+    'raycaster-js-bad': [
+        'JS RAYCASTER #1',
+        'my first js raycaster wasnt very good',
+    ],
+    'raycaster-js-good': [
+        'JS RAYCASTER #2',
+        'my second js raycaster was good',
+    ],
+    'aoc': [
+        'ADVENT OF CODE',
+        'i completed the 2025 advent of code in c',
     ],
     'test': [
-        'TEST', 
+        'TEST',
         'test :)'
     ],
 }
