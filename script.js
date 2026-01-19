@@ -18,9 +18,12 @@ const startupWindows = {
 const windowConfig = {
     'welcome': [
         'WELCOME',
-        'projects<br> \
+        '<b>projects</b><br> \
         <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">RAYCASTER</a><br> \
-        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'aoc\')">Advent Of Code 2025</a><br>'
+        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'aoc\')">Advent Of Code 2025</a><br> \
+        <br> \
+        <b>navigation</b><br> \
+        <div style="display: flex;"><div style="display: flex; cursor: ew-resize; width: 24px;"><div style="width: 0px; height: 100%; border-right: blue 8px double;"></div><div style="width: 8px; height: 100%; border-left: blue 8px double;"></div></div>grab window borders to resize windows</div><br>'
     ],
     'about': [
         'ABOUT',
