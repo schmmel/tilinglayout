@@ -19,11 +19,12 @@ const windowConfig = {
     'welcome': [
         'WELCOME',
         '<b>projects</b><br> \
-        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">RAYCASTER</a><br> \
+        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">Raycaster</a><br> \
         <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'aoc\')">Advent Of Code 2025</a><br> \
         <br> \
         <b>navigation</b><br> \
-        <div style="display: flex;"><div style="display: flex; cursor: ew-resize; width: 24px;"><div style="width: 0px; height: 100%; border-right: blue 8px double;"></div><div style="width: 8px; height: 100%; border-left: blue 8px double;"></div></div>grab window borders to resize windows</div><br>'
+        <div style="display: flex;"><div style="display: flex; cursor: ew-resize; width: 24px;"><div style="width: 0px; height: 100%; border-right: blue 8px double;"></div><div style="width: 8px; height: 100%; border-left: blue 8px double;"></div></div>grab window borders to resize windows</div> \
+        <div style="display: flex;"><div style="width: 16px; margin-right: 8px; flex-shrink: 0; cursor: grab; background-color: blue;"></div>grab window titles to pick up windows for moving</div>'
     ],
     'about': [
         'ABOUT',
