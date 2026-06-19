@@ -276,6 +276,9 @@ function reformatWindows(target) {
 
 window.addEventListener('mousemove', mouseListener);
 
+let mouseX;
+let mouseY;
+
 let resizeDirection;
 let resizeTarget0;
 let resizeTarget1;
@@ -285,8 +288,8 @@ let resizeTarget0Height;
 let resizeTarget1Height;
 let resizeTarget0Min;
 let resizeTarget1Min;
-let mouseX;
-let mouseY;
+let resizeMouseX;
+let resizeMouseY;
 
 let resizing = 0;
 
@@ -392,8 +395,8 @@ function resizableListener(e) {
         }
     }
 
-    mouseX = e.x;
-    mouseY = e.y;
+    resizeMouseX = e.x;
+    resizeMouseY = e.y;
 
     resizeTarget0 = document.getElementById(resizeParent + '0');
     resizeTarget1 = document.getElementById(resizeParent + '1');
@@ -417,8 +420,8 @@ function resizeWindow(e) {
 
     resizing = 1;
 
-    let dx = e.x - mouseX;
-    let dy = e.y - mouseY;
+    let dx = e.x - resizeMouseX;
+    let dy = e.y - resizeMouseY;
 
     switch (resizeDirection) {
         case 'left':
