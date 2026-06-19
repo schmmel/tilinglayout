@@ -43,7 +43,7 @@ body {
     background-color: blue;
     color: white;
     border: none;
-    margin-left: 8px;
+    margin-left: 2px;
 }
 
 .close-button:hover {
@@ -52,6 +52,22 @@ body {
 
 .content {
     padding: 6px;
+}
+
+.explainer-entry span {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+            line-clamp: 2; 
+    -webkit-box-orient: vertical;
+}
+
+.navigation-list a {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+            line-clamp: 1; 
+    -webkit-box-orient: vertical;
 }
 
 .placePreview {

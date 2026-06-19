@@ -5,7 +5,7 @@ let layout = {
     height: 0,
     borderSize: 4, // additional to css border
     defaultContainerSize: 1,
-    minimumWindowSize: 64,
+    minimumWindowSize: 96,
     latestCreatedWindow: '',
 }
 
@@ -19,12 +19,14 @@ const windowConfig = {
     'welcome': [
         'WELCOME',
         '<b>projects</b><br> \
-        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">Raycaster</a><br> \
-        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'aoc\')">Advent Of Code 2025</a><br> \
+        <div class="navigation-list"> \
+            <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster\')">Raycaster</a> \
+            <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'aoc\')">Advent Of Code 2025</a> \
+        </div> \
         <br> \
         <b>navigation</b><br> \
-        <div style="display: flex;"><div style="display: flex; cursor: ew-resize; width: 24px;"><div style="width: 0px; height: 100%; border-right: blue 8px double;"></div><div style="width: 8px; height: 100%; border-left: blue 8px double;"></div></div>grab window borders to resize windows</div> \
-        <div style="display: flex;"><div style="width: 16px; margin-right: 8px; flex-shrink: 0; cursor: grab; background-color: blue;"></div>grab window titles to pick up windows for moving</div>'
+        <div style="display: flex;" class="explainer-entry"><div style="display: flex; cursor: ew-resize; width: 24px;"><div style="width: 0px; height: 100%; border-right: blue 8px double;"></div><div style="width: 8px; height: 100%; border-left: blue 8px double;"></div></div><span>grab window borders to resize windows</span></div> \
+        <div style="display: flex;" class="explainer-entry"><div style="width: 16px; margin-right: 8px; flex-shrink: 0; cursor: grab; background-color: blue;"></div><span>grab window titles to pick windows up for moving</span></div>'
     ],
     'about': [
         'ABOUT',
@@ -34,8 +36,10 @@ const windowConfig = {
         'RAYCASTER',
         'raycaster made in c using the raylib library<br><br> \
         previous raycasters<br> \
-        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster-js-bad\')">javascript raycaster the first</a><br> \
-        <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster-js-good\')">javascript raycaster the second</a><br>'
+        <div class="navigation-list"> \
+            <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster-js-bad\')">javascript raycaster the first</a> \
+            <a href="#" onclick="createWindow(layout.latestCreatedWindow, 1, \'raycaster-js-good\')">javascript raycaster the second</a> \
+        </div>'
     ],
     'raycaster-js-bad': [
         'JS RAYCASTER #1',
@@ -198,6 +202,7 @@ function createWindow(targetId, newWindowLocation, windowName) {
 
     setContainerFlexDirection();
     setContainerSize();
+    populateContainersArray();
 }
 
 function destroyWindow(targetId) {
@@ -224,6 +229,7 @@ function destroyWindow(targetId) {
 
 function reformatWindows(target) {
     const elements = [...target.getElementsByTagName('*')];
+    // const elements = [...target.getElementsByClassName('window'), ...target.getElementsByClassName('container')];
     const nthDigitToRemove = target.id.length;
 
     for (let i = 0; i < elements.length; i++) {
@@ -288,6 +294,9 @@ let placePreview = document.createElement('div');
 placePreview.className = 'placePreview';
 
 function mouseListener(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
     if (resizing == 1) {
         return;
     }
@@ -307,7 +316,7 @@ function mouseListener(e) {
         return;
     }
 
-    if (e.target?.classList.contains('title')) {
+    if (e.target?.classList.contains('title') && containers.length > 1) {
         layout.root.style.cursor = "grab";
         return;
     }
@@ -583,11 +592,16 @@ function getContainerChildrenDensity(container, direction) {
 
 let moving = 0;
 let heldWindow;
+let holdStartX;
+let holdStartY;
 
 function pickupWindow(target) {
-    if (moving == 1) {
+    if (moving == 1 || containers.length <= 1) {
         return;
     }
+
+    holdStartX = mouseX;
+    holdStartY = mouseY;
 
     layout.root.style.cursor = "grabbing";
 
@@ -603,7 +617,13 @@ function pickupWindow(target) {
 function placeWindow(e) {
     const parentContainer = e.target.closest('.container');
 
-    const heldWindowLocation = placePreview.classList.contains("zero") ? 0 : 1;
+    let heldWindowLocation = placePreview.classList.contains("zero") ? 0 : 1;
+
+    if (holdStartX == e.clientX &&
+        holdStartY == e.clientY)
+    {
+        heldWindowLocation = parseInt(heldWindow.id.slice(heldWindow.id.length - 1));
+    }
 
     placePreview.remove();
 
@@ -642,9 +662,11 @@ function placeWindow(e) {
 
     setContainerFlexDirection();
     setContainerSize();
+    populateContainersArray();
 
     heldWindow = null;
 
+    layout.root.style.cursor = "default";
     moving = 0;
     document.removeEventListener('mouseup', placeWindow);
 }
