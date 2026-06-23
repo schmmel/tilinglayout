@@ -92,6 +92,7 @@ function clientParameters() {
     layout.direction = layout.width >= layout.height ? 'horizontal' : 'vertical';
 
     setContainerFlexDirection();
+    setContainerSize();
 }
 
 function setContainerFlexDirection() {
@@ -105,8 +106,6 @@ function setContainerFlexDirection() {
     secondary.forEach(element => {
         element.style.flexDirection = layout.direction === 'horizontal' ? 'row' : 'column';
     });
-
-    setContainerSize();
 }
 
 // element id is always 1 longer than parent element
@@ -143,7 +142,6 @@ function loadContainerConfig(containerConfig) {
     })
 
     populateContainersArray();
-    setContainerSize();
 }
 
 function loadWindowConfig(startupWindows) {
@@ -201,9 +199,10 @@ function createWindow(targetId, newWindowLocation, windowName) {
     document.getElementById(parentContainer + oldWindowLocation.toString()).appendChild(target);
     target.id = 'w' + parentContainer.slice(1) + oldWindowLocation.toString();
 
+    populateContainersArray();
+
     setContainerFlexDirection();
     setContainerSize();
-    populateContainersArray();
 }
 
 function destroyWindow(targetId) {
@@ -226,6 +225,11 @@ function destroyWindow(targetId) {
     target.parentElement.remove();
 
     reformatWindows(affectedContainer);
+
+    populateContainersArray();
+
+    setContainerFlexDirection();
+    setContainerSize();
 }
 
 function reformatWindows(target) {
@@ -270,9 +274,10 @@ function reformatWindows(target) {
         }
     }
 
+    populateContainersArray();
+
     setContainerFlexDirection();
     setContainerSize();
-    populateContainersArray();
 }
 
 window.addEventListener('mousemove', mouseListener);
@@ -460,6 +465,9 @@ function resizeWindow(e) {
             break;
     }
 
+    // populateContainersArray();
+
+    setContainerFlexDirection();
     setContainerSize();
 }
 
@@ -471,7 +479,7 @@ document.addEventListener('mouseup', () => {
 });
 
 function setContainerSize() {
-    Object.keys(containerSizes).forEach(key => {
+    containers.forEach(key => {
         const targetContainer = document.getElementById(key);
         if (targetContainer == null) {
             return;
@@ -484,17 +492,20 @@ function setContainerSize() {
             return;
         }
 
-        const containerSize = containerSizes[key];
         const parentContainer = key.slice(0, -1);
 
         // hacky fix for some containers not having corresponding sizes???
         // i dont know why they dont have corresponding sizes but they should
-        if (containerSizes[parentContainer + '0'] == undefined) {
-            containerSizes[parentContainer + '0'] = layout.defaultContainerSize;
-        }
-        if (containerSizes[parentContainer + '1'] == undefined) {
-            containerSizes[parentContainer + '1'] = layout.defaultContainerSize;
-        }
+        // if (containerSizes[parentContainer + '0'] == undefined || containerSizes[parentContainer + '0'] <= 0) {
+        //     containerSizes[parentContainer + '0'] = layout.defaultContainerSize;
+        //     console.log("huh");
+        // }
+        // if (containerSizes[parentContainer + '1'] == undefined || containerSizes[parentContainer + '1'] <= 0) {
+        //     containerSizes[parentContainer + '1'] = layout.defaultContainerSize;
+        //     console.log("huh");
+        // }
+
+        const containerSize = containerSizes[key];
 
         const totalSize = containerSizes[parentContainer + '0'] + containerSizes[parentContainer + '1'];
 
@@ -506,12 +517,25 @@ function setContainerSize() {
         const targetMinSize = getContainerChildrenDensity(targetContainer, targetContainer.style.flexDirection) * layout.minimumWindowSize;
         const targetSiblingMinSize = getContainerChildrenDensity(targetSibling, targetSibling.style.flexDirection) * layout.minimumWindowSize;
 
+
         if (targetContainer.style.flexDirection == 'row') {
-            targetContainer.style.height = Math.min(Math.max(targetMinSize, (containerSize / totalSize) * totalHeight), totalHeight - targetSiblingMinSize) + 'px';
+            targetContainer.style.height =  Math.max(
+                                                Math.min(
+                                                    (containerSize / totalSize) * totalHeight,
+                                                    totalHeight - targetSiblingMinSize
+                                                ),
+                                                targetMinSize
+                                            ) + 'px';
             targetContainer.style.width = '100%';
-        } else if (targetContainer.style.flexDirection == 'column') {
+                    } else if (targetContainer.style.flexDirection == 'column') {
             targetContainer.style.height = '100%';
-            targetContainer.style.width = Math.min(Math.max(targetMinSize, (containerSize / totalSize) * totalWidth), totalWidth - targetSiblingMinSize) + 'px';
+            targetContainer.style.width =   Math.max(
+                                                Math.min(
+                                                    (containerSize / totalSize) * totalWidth,
+                                                    totalWidth - targetSiblingMinSize
+                                                ),
+                                                targetMinSize
+                                            ) + 'px';
         }
     })
 }
@@ -653,7 +677,6 @@ function placeWindow(e) {
 
     heldWindow.id = 'w' + parentContainer.id.slice(1) + heldWindowLocation.toString();
 
-
     // append original window to opposite container
     let originalWindow = document.getElementById('w' + parentContainer.id.slice(1));
 
@@ -662,9 +685,10 @@ function placeWindow(e) {
 
     document.getElementById(parentContainer.id + oldWindowLocation.toString()).appendChild(originalWindow);
 
+    populateContainersArray();
+
     setContainerFlexDirection();
     setContainerSize();
-    populateContainersArray();
 
     heldWindow = null;
 
