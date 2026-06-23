@@ -648,9 +648,7 @@ function placeWindow(e) {
     // append held window to new container
     document.getElementById(parentContainer.id + heldWindowLocation.toString()).appendChild(heldWindow);
 
-    if (layout.latestCreatedWindow == "") {
-        layout.latestCreatedWindow = 'w' + parentContainer.id.slice(1) + heldWindowLocation.toString();
-    }
+    layout.latestCreatedWindow = 'w' + parentContainer.id.slice(1) + heldWindowLocation.toString();
 
     heldWindow.id = 'w' + parentContainer.id.slice(1) + heldWindowLocation.toString();
 
