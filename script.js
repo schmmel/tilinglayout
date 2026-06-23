@@ -143,6 +143,7 @@ function loadContainerConfig(containerConfig) {
     })
 
     populateContainersArray();
+    setContainerSize();
 }
 
 function loadWindowConfig(startupWindows) {
